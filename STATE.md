@@ -8,6 +8,8 @@ Locked decisions:
 - Designer will be a framework-free web component (H3); OverEGov integrates via Angular lazy module + one controller (H4).
 - Languages: TypeScript for modules; pos kit in Python.
 
+Research protocol (docs/research/protocol.md): tasks #3–#7 are CONTROL tasks (kit present, not used: no pos impact/map/query, free code reading, full suite). From #8 on: cbad.
+
 Open questions:
 - Number-to-words (Yalnız …) in XSLT 1.0: recursive named template vs precomputed in UBL note. Decide in H1 with a golden test.
 - Which 3 sample UBL files represent the parity suite (have: earsiv-satis-6gen).

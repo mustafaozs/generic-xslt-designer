@@ -43,4 +43,19 @@ jobs:
           if [ -n "$TESTS" ]; then echo "running: $TESTS"; npx vitest run $TESTS; else npx vitest run; fi
       - run: npm run typecheck
       - name: Kit self-test
-        run: python -m pytest -q tests
+        run: python -m pytest -q tests  # gates smoke on this repo
+      - name: Metrics record exists for this PR's issue (protocol §1)
+        if: github.event_name == 'pull_request'
+        env: { PR_BODY: "${{ github.event.pull_request.body }}" }
+        run: |
+          ISSUE=$(echo "$PR_BODY" | grep -oiE '(closes|fixes|resolves) #[0-9]+' | head -1 | grep -oE '#[0-9]+' || true)
+          if [ -z "$ISSUE" ]; then echo "::error::PR body must contain 'Closes #<issue>'"; exit 1; fi
+          pos metrics check --issue "$ISSUE"
+      - name: Upload research artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-os-metrics-${{ github.run_id }}
+          path: |
+            .project-os/metrics.jsonl
+            .project-os/queries.log
+          if-no-files-found: ignore

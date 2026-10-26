@@ -204,26 +204,103 @@ def log_query(root: Path, kind: str, arg: str, result_size: int) -> None:
 
 
 def metrics_log(root: Path, **fields) -> dict:
-    rec = {"t": int(time.time()), "date": f"{date.today():%Y-%m-%d}", **fields}
+    """One record per task. Adds diff size and the rungs actually queried (from queries.log)."""
+    rec = {"t": int(time.time()), "date": f"{date.today():%Y-%m-%d}"}
+    rec.update({k: v for k, v in fields.items() if v is not None})
+    stat = git(root, "diff", "--shortstat", "HEAD~1") if not fields.get("base") else git(root, "diff", "--shortstat", f"{fields['base']}...HEAD")
+    m = re.findall(r"(\d+) (?:insertion|deletion)", stat)
+    rec["diff_lines"] = sum(int(x) for x in m)
+    rec["rungs_queried"] = _rungs_since_last_record(root)
     p = root / ".project-os" / "metrics.jsonl"
     with p.open("a") as f:
-        f.write(json.dumps(rec) + "\n")
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     return rec
 
 
-def metrics_report(root: Path) -> str:
+_RUNG = {"map": 1, "query": 2, "impact": 2, "card": 3, "contract": 4, "read": 5}
+
+
+def _rungs_since_last_record(root: Path) -> list[int]:
+    """Which retrieval rungs queries.log shows since the previous metrics record (cross-check for self-reported stopped_at)."""
+    mp = root / ".project-os" / "metrics.jsonl"
+    since = 0
+    if mp.is_file():
+        lines = [l for l in mp.read_text().splitlines() if l.strip()]
+        if lines:
+            since = json.loads(lines[-1]).get("t", 0)
+    qp = root / ".project-os" / "queries.log"
+    rungs = set()
+    if qp.is_file():
+        for l in qp.read_text().splitlines():
+            try:
+                q = json.loads(l)
+            except ValueError:
+                continue
+            if q.get("t", 0) >= since and q.get("kind") in _RUNG:
+                rungs.add(_RUNG[q["kind"]])
+    return sorted(rungs)
+
+
+def _records(root: Path) -> list[dict]:
     p = root / ".project-os" / "metrics.jsonl"
     if not p.is_file():
-        return "no metrics yet"
-    recs = [json.loads(l) for l in p.read_text().splitlines() if l.strip()]
-    n = len(recs)
-    tin = sum(r.get("tokens_in", 0) for r in recs)
-    tout = sum(r.get("tokens_out", 0) for r in recs)
-    tests = sum(r.get("tests_ran", 0) for r in recs)
-    levels = {}
-    for r in recs:
-        levels[r.get("stopped_at", "?")] = levels.get(r.get("stopped_at", "?"), 0) + 1
-    lines = [f"tasks: {n}", f"tokens in/out total: {tin}/{tout}  per task: {tin // max(n,1)}/{tout // max(n,1)}",
-             f"tests ran per task: {tests / max(n,1):.1f}", "retrieval level where the agent stopped: " +
-             ", ".join(f"{k}={v}" for k, v in sorted(levels.items()))]
+        return []
+    return [json.loads(l) for l in p.read_text().splitlines() if l.strip()]
+
+
+def metrics_check(root: Path, issue: str | None) -> tuple[bool, list[str]]:
+    """Gate: the task being merged must have a metrics record."""
+    recs = _records(root)
+    if issue is None:
+        return (bool(recs), [f"{len(recs)} metrics record(s)" if recs else "MISSING metrics: no records at all → `pos metrics log --issue <#>`"])
+    hit = [r for r in recs if str(r.get("issue")) == str(issue)]
+    if not hit:
+        return False, [f"MISSING metrics record for issue {issue} → `pos metrics log --issue {issue} ...` (protocol §1)"]
+    return True, [f"ok metrics: issue {issue} recorded ({hit[-1].get('condition', '?')}, stopped_at={hit[-1].get('stopped_at', '?')})"]
+
+
+def _median(xs):
+    xs = sorted(x for x in xs if isinstance(x, (int, float)))
+    if not xs:
+        return None
+    n = len(xs)
+    return xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2
+
+
+def metrics_report(root: Path, as_json: bool = False) -> str:
+    """Per-hypothesis numbers from docs/research/hypotheses.md. Descriptive only; verdicts are written by a human into evidence/."""
+    recs = _records(root)
+    cbad = [r for r in recs if r.get("condition", "cbad") == "cbad"]
+    ctrl = [r for r in recs if r.get("condition") == "control"]
+
+    def share(rs, pred):
+        return (sum(1 for r in rs if pred(r)) / len(rs)) if rs else None
+
+    def disc_share(r):
+        ti, td = r.get("tokens_in") or 0, r.get("tokens_discovery")
+        return (td / ti) if ti and td is not None else None
+
+    rep = {
+        "n_total": len(recs), "n_cbad": len(cbad), "n_control": len(ctrl),
+        "H1_share_stopped_at_le4": share(cbad, lambda r: isinstance(r.get("stopped_at"), int) and r["stopped_at"] <= 4),
+        "H1_selfreport_vs_log_disagreements": sum(1 for r in cbad if isinstance(r.get("stopped_at"), int) and r.get("rungs_queried") and max(r["rungs_queried"]) > r["stopped_at"]),
+        "H2_median_tokens_in_cbad": _median(r.get("tokens_in") for r in cbad),
+        "H2_median_tokens_in_control": _median(r.get("tokens_in") for r in ctrl),
+        "H2_median_discovery_share_cbad": _median(x for x in (disc_share(r) for r in cbad) if x is not None),
+        "H2_median_discovery_share_control": _median(x for x in (disc_share(r) for r in ctrl) if x is not None),
+        "H2_median_tokens_per_100_lines_cbad": _median((r["tokens_in"] / max(r.get("diff_lines", 0), 1) * 100) for r in cbad if r.get("tokens_in")),
+        "H3_impact_misses_total": sum(r.get("impact_misses", 0) or 0 for r in cbad),
+        "H3_tests_ran_vs_full_median_ratio": _median((r["tests_ran"] / r["tests_full"]) for r in cbad if r.get("tests_full")),
+        "H4_card_fail_first_push_rate": share(cbad, lambda r: r.get("card_fail_first_push") is True),
+        "H7_review_returns_per_10": (sum(r.get("review_returns", 0) or 0 for r in cbad) / len(cbad) * 10) if cbad else None,
+        "H8_share_hit_rung5": share(cbad, lambda r: 5 in (r.get("rungs_queried") or []) or r.get("stopped_at") == 5),
+        "H9_median_gate_seconds": _median(r.get("gate_seconds") for r in cbad),
+        "models": sorted({r.get("model", "?") for r in recs}),
+    }
+    if as_json:
+        return json.dumps(rep, ensure_ascii=False, indent=1)
+    lines = [f"tasks: {rep['n_total']} (cbad {rep['n_cbad']}, control {rep['n_control']})  models: {', '.join(rep['models'])}"]
+    for k, v in rep.items():
+        if k.startswith("H"):
+            lines.append(f"{k}: {v if v is None or isinstance(v, int) else round(v, 3)}")
     return "\n".join(lines)
