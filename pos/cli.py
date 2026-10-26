@@ -47,10 +47,18 @@ def main(argv: list[str] | None = None) -> int:
     g = sub.add_parser("gate", help="run every CI gate: index, lint, card check, ledger check"); g.add_argument("--base", default=None)
 
     m = sub.add_parser("metrics", help="task metrics").add_subparsers(dest="sub", required=True)
-    ml = m.add_parser("log"); ml.add_argument("--issue", required=True); ml.add_argument("--tokens-in", type=int, default=0)
-    ml.add_argument("--tokens-out", type=int, default=0); ml.add_argument("--tests-ran", type=int, default=0)
-    ml.add_argument("--stopped-at", default="?", help="retrieval level where the agent stopped (1-6)")
-    m.add_parser("report")
+    ml = m.add_parser("log", help="one record per task (protocol §3)"); ml.add_argument("--issue", required=True)
+    ml.add_argument("--condition", choices=["cbad", "control"], default="cbad"); ml.add_argument("--model", default=None)
+    ml.add_argument("--tokens-in", type=int, default=None); ml.add_argument("--tokens-out", type=int, default=None)
+    ml.add_argument("--tokens-discovery", type=int, default=None, help="input tokens before first edit")
+    ml.add_argument("--stopped-at", type=int, default=None, help="deepest retrieval rung used (1-6)")
+    ml.add_argument("--tests-selected", type=int, default=None); ml.add_argument("--tests-ran", type=int, default=None)
+    ml.add_argument("--tests-full", type=int, default=None); ml.add_argument("--impact-misses", type=int, default=None)
+    ml.add_argument("--card-fail-first-push", action="store_true", default=None); ml.add_argument("--ledger-fail-first-push", action="store_true", default=None)
+    ml.add_argument("--review-returns", type=int, default=None); ml.add_argument("--gate-seconds", type=float, default=None)
+    ml.add_argument("--base", default=None)
+    mc = m.add_parser("check", help="gate: the issue must have a metrics record"); mc.add_argument("--issue", default=None)
+    mr = m.add_parser("report"); mr.add_argument("--json", action="store_true")
 
     a = ap.parse_args(argv)
     root = find_root(a.root)
@@ -85,14 +93,17 @@ def main(argv: list[str] | None = None) -> int:
         return _print(*gates.lint(root))
     if a.cmd == "gate":
         index(root); ok = True
-        for name, (o, msgs) in (("lint", gates.lint(root)), ("cards", gates.card_check(root)), ("ledger", gates.ledger_check(root, a.base))):
+        for name, (o, msgs) in (("lint", gates.lint(root)), ("cards", gates.card_check(root)), ("ledger", gates.ledger_check(root, a.base)), ("metrics", gates.metrics_check(root, None))):
             print(f"--- {name}"); _print(o, msgs); ok = ok and o
         print("GATE PASS" if ok else "GATE FAIL"); return 0 if ok else 1
     if a.cmd == "metrics":
         if a.sub == "log":
-            print(json.dumps(gates.metrics_log(root, issue=a.issue, tokens_in=a.tokens_in, tokens_out=a.tokens_out,
-                                               tests_ran=a.tests_ran, stopped_at=a.stopped_at))); return 0
-        if a.sub == "report": print(gates.metrics_report(root)); return 0
+            print(json.dumps(gates.metrics_log(root, issue=a.issue, condition=a.condition, model=a.model, tokens_in=a.tokens_in,
+                tokens_out=a.tokens_out, tokens_discovery=a.tokens_discovery, stopped_at=a.stopped_at, tests_selected=a.tests_selected,
+                tests_ran=a.tests_ran, tests_full=a.tests_full, impact_misses=a.impact_misses, card_fail_first_push=a.card_fail_first_push,
+                ledger_fail_first_push=a.ledger_fail_first_push, review_returns=a.review_returns, gate_seconds=a.gate_seconds, base=a.base), ensure_ascii=False)); return 0
+        if a.sub == "check": return _print(*gates.metrics_check(root, a.issue))
+        if a.sub == "report": print(gates.metrics_report(root, a.json)); return 0
     return 1
 
 

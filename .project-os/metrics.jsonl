@@ -1,0 +1,2 @@
+{"t": 1793049149, "date": "2026-10-26", "issue": "#1", "tokens_in": 0, "tokens_out": 0, "tests_ran": 10, "stopped_at": "3"}
+{"t": 1793049761, "date": "2026-10-26", "issue": "#1", "condition": "cbad", "model": "claude-fable-5-1", "stopped_at": 3, "tests_ran": 10, "tests_full": 10, "diff_lines": 8669, "rungs_queried": []}

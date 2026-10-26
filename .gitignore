@@ -1,6 +1,4 @@
 .project-os/index.db
-.project-os/queries.log
-.project-os/metrics.jsonl
 __pycache__/
 *.egg-info/
 node_modules/
