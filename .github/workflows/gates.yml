@@ -30,11 +30,17 @@ jobs:
             echo "::warning::contracts/ changed — a human must approve this PR (branch protection: require review)"
             pos impact --diff --base origin/${{ github.base_ref }} || true
           fi
-      - name: Impact-selected tests
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm ci
+      - run: npm run gen:types
+      - name: Impact-selected tests (TypeScript)
         run: |
+          TESTS=""
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            TESTS=$(pos impact --diff --base origin/${{ github.base_ref }} --json | python -c 'import json,sys; print(" ".join(json.load(sys.stdin)["tests"]))' || true)
+            TESTS=$(pos impact --diff --base origin/${{ github.base_ref }} --json | python -c 'import json,sys; print(" ".join(f for f in json.load(sys.stdin)["tests"] if f.endswith(".ts")))' || true)
           fi
-          if [ -n "$TESTS" ]; then echo "running: $TESTS"; python -m pytest -q $(echo $TESTS | tr ' ' '\n' | grep '\.py$'); fi
+          if [ -n "$TESTS" ]; then echo "running: $TESTS"; npx vitest run $TESTS; else npx vitest run; fi
+      - run: npm run typecheck
       - name: Kit self-test
         run: python -m pytest -q tests

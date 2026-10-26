@@ -20,8 +20,11 @@ def find_root(start: Path | None = None) -> Path:
 
 
 def db_path(root: Path) -> Path:
-    d = root / ".project-os"
-    d.mkdir(exist_ok=True)
+    """index.db lives in .project-os/ unless POS_DB_DIR points elsewhere (network mounts, read-only checkouts)."""
+    import os
+    override = os.environ.get("POS_DB_DIR")
+    d = Path(override).expanduser() / root.name if override else root / ".project-os"
+    d.mkdir(parents=True, exist_ok=True)
     return d / "index.db"
 
 
@@ -51,8 +54,13 @@ def is_test_path(relpath: str) -> bool:
         or name.endswith(".test.ts") or name.endswith(".spec.ts") or name.endswith(".test.tsx")
 
 
+def _norm(b: bytes) -> bytes:
+    """Line-ending independent: a CRLF checkout must hash like an LF one."""
+    return b.replace(b"\r\n", b"\n")
+
+
 def file_hash(p: Path) -> str:
-    return hashlib.sha256(p.read_bytes()).hexdigest()[:16]
+    return hashlib.sha256(_norm(p.read_bytes())).hexdigest()[:16]
 
 
 def module_hash(root: Path, module: str) -> str:
@@ -64,7 +72,7 @@ def module_hash(root: Path, module: str) -> str:
         if is_test_path(r):
             continue
         h.update(r.encode())
-        h.update(p.read_bytes())
+        h.update(_norm(p.read_bytes()))
     return h.hexdigest()[:16]
 
 

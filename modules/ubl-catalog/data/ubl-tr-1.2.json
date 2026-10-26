@@ -1,0 +1,936 @@
+{
+ "version": "1.0.0",
+ "documentTypes": [
+  "EFATURA",
+  "EARSIV"
+ ],
+ "groups": [
+  {
+   "id": "doc",
+   "label": "Belge"
+  },
+  {
+   "id": "supplier",
+   "label": "Satıcı"
+  },
+  {
+   "id": "customer",
+   "label": "Alıcı"
+  },
+  {
+   "id": "line",
+   "label": "Fatura Satırı"
+  },
+  {
+   "id": "tax",
+   "label": "Vergi"
+  },
+  {
+   "id": "totals",
+   "label": "Toplamlar"
+  },
+  {
+   "id": "payment",
+   "label": "Ödeme"
+  },
+  {
+   "id": "refs",
+   "label": "Referanslar"
+  },
+  {
+   "id": "note",
+   "label": "Notlar"
+  }
+ ],
+ "fields": [
+  {
+   "id": "doc.id",
+   "group": "doc",
+   "label": "Fatura No",
+   "xpath": "cbc:ID",
+   "scope": "document",
+   "type": "text",
+   "required": true
+  },
+  {
+   "id": "doc.uuid",
+   "group": "doc",
+   "label": "ETTN",
+   "xpath": "cbc:UUID",
+   "scope": "document",
+   "type": "text",
+   "required": true
+  },
+  {
+   "id": "doc.issueDate",
+   "group": "doc",
+   "label": "Fatura Tarihi",
+   "xpath": "cbc:IssueDate",
+   "scope": "document",
+   "type": "date",
+   "required": true
+  },
+  {
+   "id": "doc.issueTime",
+   "group": "doc",
+   "label": "Fatura Saati",
+   "xpath": "cbc:IssueTime",
+   "scope": "document",
+   "type": "time"
+  },
+  {
+   "id": "doc.profile",
+   "group": "doc",
+   "label": "Senaryo",
+   "xpath": "cbc:ProfileID",
+   "scope": "document",
+   "type": "code",
+   "codelist": "ProfileID",
+   "required": true
+  },
+  {
+   "id": "doc.typeCode",
+   "group": "doc",
+   "label": "Fatura Tipi",
+   "xpath": "cbc:InvoiceTypeCode",
+   "scope": "document",
+   "type": "code",
+   "codelist": "InvoiceTypeCode",
+   "required": true
+  },
+  {
+   "id": "doc.currency",
+   "group": "doc",
+   "label": "Para Birimi",
+   "xpath": "cbc:DocumentCurrencyCode",
+   "scope": "document",
+   "type": "code",
+   "required": true
+  },
+  {
+   "id": "doc.lineCount",
+   "group": "doc",
+   "label": "Satır Sayısı",
+   "xpath": "cbc:LineCountNumeric",
+   "scope": "document",
+   "type": "number"
+  },
+  {
+   "id": "doc.copyIndicator",
+   "group": "doc",
+   "label": "Kopya mı",
+   "xpath": "cbc:CopyIndicator",
+   "scope": "document",
+   "type": "boolean"
+  },
+  {
+   "id": "doc.customization",
+   "group": "doc",
+   "label": "Customization",
+   "xpath": "cbc:CustomizationID",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "doc.note",
+   "group": "note",
+   "label": "Not (tümü)",
+   "xpath": "cbc:Note",
+   "scope": "document",
+   "type": "text",
+   "note": "repeating; codegen renders each"
+  },
+  {
+   "id": "doc.exchangeRate",
+   "group": "doc",
+   "label": "Döviz Kuru",
+   "xpath": "cac:PricingExchangeRate/cbc:CalculationRate",
+   "scope": "document",
+   "type": "number"
+  },
+  {
+   "id": "doc.exchangeSource",
+   "group": "doc",
+   "label": "Kur Kaynak Para",
+   "xpath": "cac:PricingExchangeRate/cbc:SourceCurrencyCode",
+   "scope": "document",
+   "type": "code"
+  },
+  {
+   "id": "supplier.name",
+   "group": "supplier",
+   "label": "Satıcı Unvan",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PartyName/cbc:Name",
+   "scope": "document",
+   "type": "text",
+   "required": true
+  },
+  {
+   "id": "supplier.personName",
+   "group": "supplier",
+   "label": "Satıcı Ad Soyad",
+   "xpath": "concat(cac:AccountingSupplierParty/cac:Party/cac:Person/cbc:FirstName,' ',cac:AccountingSupplierParty/cac:Party/cac:Person/cbc:FamilyName)",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.vkn",
+   "group": "supplier",
+   "label": "Satıcı VKN",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID[@schemeID='VKN']",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.tckn",
+   "group": "supplier",
+   "label": "Satıcı TCKN",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID[@schemeID='TCKN']",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.taxId",
+   "group": "supplier",
+   "label": "Satıcı VKN/TCKN",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID[@schemeID='VKN' or @schemeID='TCKN']",
+   "scope": "document",
+   "type": "text",
+   "required": true
+  },
+  {
+   "id": "supplier.mersis",
+   "group": "supplier",
+   "label": "Satıcı MERSİS",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID[@schemeID='MERSISNO']",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.ticaretSicil",
+   "group": "supplier",
+   "label": "Satıcı Ticaret Sicil",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID[@schemeID='TICARETSICILNO']",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.taxOffice",
+   "group": "supplier",
+   "label": "Satıcı Vergi Dairesi",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cac:TaxScheme/cbc:Name",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.street",
+   "group": "supplier",
+   "label": "Satıcı Cadde/Sokak",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cbc:StreetName",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.buildingName",
+   "group": "supplier",
+   "label": "Satıcı Bina Adı",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cbc:BuildingName",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.buildingNo",
+   "group": "supplier",
+   "label": "Satıcı Bina No",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cbc:BuildingNumber",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.room",
+   "group": "supplier",
+   "label": "Satıcı Kapı No",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cbc:Room",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.district",
+   "group": "supplier",
+   "label": "Satıcı İlçe",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cbc:CitySubdivisionName",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.city",
+   "group": "supplier",
+   "label": "Satıcı İl",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cbc:CityName",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.postalZone",
+   "group": "supplier",
+   "label": "Satıcı Posta Kodu",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cbc:PostalZone",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.region",
+   "group": "supplier",
+   "label": "Satıcı Mahalle/Bölge",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cbc:Region",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.country",
+   "group": "supplier",
+   "label": "Satıcı Ülke",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:PostalAddress/cac:Country/cbc:Name",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.phone",
+   "group": "supplier",
+   "label": "Satıcı Telefon",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:Contact/cbc:Telephone",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.fax",
+   "group": "supplier",
+   "label": "Satıcı Faks",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:Contact/cbc:Telefax",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.email",
+   "group": "supplier",
+   "label": "Satıcı E-posta",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cac:Contact/cbc:ElectronicMail",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "supplier.website",
+   "group": "supplier",
+   "label": "Satıcı Web",
+   "xpath": "cac:AccountingSupplierParty/cac:Party/cbc:WebsiteURI",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.name",
+   "group": "customer",
+   "label": "Alıcı Unvan",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PartyName/cbc:Name",
+   "scope": "document",
+   "type": "text",
+   "required": false
+  },
+  {
+   "id": "customer.personName",
+   "group": "customer",
+   "label": "Alıcı Ad Soyad",
+   "xpath": "concat(cac:AccountingCustomerParty/cac:Party/cac:Person/cbc:FirstName,' ',cac:AccountingCustomerParty/cac:Party/cac:Person/cbc:FamilyName)",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.vkn",
+   "group": "customer",
+   "label": "Alıcı VKN",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID[@schemeID='VKN']",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.tckn",
+   "group": "customer",
+   "label": "Alıcı TCKN",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID[@schemeID='TCKN']",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.taxId",
+   "group": "customer",
+   "label": "Alıcı VKN/TCKN",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID[@schemeID='VKN' or @schemeID='TCKN']",
+   "scope": "document",
+   "type": "text",
+   "required": true
+  },
+  {
+   "id": "customer.mersis",
+   "group": "customer",
+   "label": "Alıcı MERSİS",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID[@schemeID='MERSISNO']",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.ticaretSicil",
+   "group": "customer",
+   "label": "Alıcı Ticaret Sicil",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID[@schemeID='TICARETSICILNO']",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.taxOffice",
+   "group": "customer",
+   "label": "Alıcı Vergi Dairesi",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PartyTaxScheme/cac:TaxScheme/cbc:Name",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.street",
+   "group": "customer",
+   "label": "Alıcı Cadde/Sokak",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cbc:StreetName",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.buildingName",
+   "group": "customer",
+   "label": "Alıcı Bina Adı",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cbc:BuildingName",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.buildingNo",
+   "group": "customer",
+   "label": "Alıcı Bina No",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cbc:BuildingNumber",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.room",
+   "group": "customer",
+   "label": "Alıcı Kapı No",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cbc:Room",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.district",
+   "group": "customer",
+   "label": "Alıcı İlçe",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cbc:CitySubdivisionName",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.city",
+   "group": "customer",
+   "label": "Alıcı İl",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cbc:CityName",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.postalZone",
+   "group": "customer",
+   "label": "Alıcı Posta Kodu",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cbc:PostalZone",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.region",
+   "group": "customer",
+   "label": "Alıcı Mahalle/Bölge",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cbc:Region",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.country",
+   "group": "customer",
+   "label": "Alıcı Ülke",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:PostalAddress/cac:Country/cbc:Name",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.phone",
+   "group": "customer",
+   "label": "Alıcı Telefon",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:Contact/cbc:Telephone",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.fax",
+   "group": "customer",
+   "label": "Alıcı Faks",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:Contact/cbc:Telefax",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.email",
+   "group": "customer",
+   "label": "Alıcı E-posta",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cac:Contact/cbc:ElectronicMail",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "customer.website",
+   "group": "customer",
+   "label": "Alıcı Web",
+   "xpath": "cac:AccountingCustomerParty/cac:Party/cbc:WebsiteURI",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "line.no",
+   "group": "line",
+   "label": "Sıra",
+   "xpath": "cbc:ID",
+   "scope": "line",
+   "type": "text"
+  },
+  {
+   "id": "line.name",
+   "group": "line",
+   "label": "Mal/Hizmet",
+   "xpath": "cac:Item/cbc:Name",
+   "scope": "line",
+   "type": "text",
+   "required": true
+  },
+  {
+   "id": "line.description",
+   "group": "line",
+   "label": "Açıklama",
+   "xpath": "cac:Item/cbc:Description",
+   "scope": "line",
+   "type": "text"
+  },
+  {
+   "id": "line.sellerCode",
+   "group": "line",
+   "label": "Satıcı Kodu",
+   "xpath": "cac:Item/cac:SellersItemIdentification/cbc:ID",
+   "scope": "line",
+   "type": "text"
+  },
+  {
+   "id": "line.buyerCode",
+   "group": "line",
+   "label": "Alıcı Kodu",
+   "xpath": "cac:Item/cac:BuyersItemIdentification/cbc:ID",
+   "scope": "line",
+   "type": "text"
+  },
+  {
+   "id": "line.quantity",
+   "group": "line",
+   "label": "Miktar",
+   "xpath": "cbc:InvoicedQuantity",
+   "scope": "line",
+   "type": "number",
+   "required": true
+  },
+  {
+   "id": "line.unit",
+   "group": "line",
+   "label": "Birim",
+   "xpath": "cbc:InvoicedQuantity/@unitCode",
+   "scope": "line",
+   "type": "code",
+   "codelist": "UnitCode"
+  },
+  {
+   "id": "line.unitPrice",
+   "group": "line",
+   "label": "Birim Fiyat",
+   "xpath": "cac:Price/cbc:PriceAmount",
+   "scope": "line",
+   "type": "money",
+   "required": true
+  },
+  {
+   "id": "line.extension",
+   "group": "line",
+   "label": "Mal Hizmet Tutarı",
+   "xpath": "cbc:LineExtensionAmount",
+   "scope": "line",
+   "type": "money",
+   "required": true
+  },
+  {
+   "id": "line.discountRate",
+   "group": "line",
+   "label": "İskonto Oranı",
+   "xpath": "cac:AllowanceCharge[cbc:ChargeIndicator='false']/cbc:MultiplierFactorNumeric",
+   "scope": "line",
+   "type": "percent"
+  },
+  {
+   "id": "line.discountAmount",
+   "group": "line",
+   "label": "İskonto Tutarı",
+   "xpath": "cac:AllowanceCharge[cbc:ChargeIndicator='false']/cbc:Amount",
+   "scope": "line",
+   "type": "money"
+  },
+  {
+   "id": "line.chargeAmount",
+   "group": "line",
+   "label": "Artırım Tutarı",
+   "xpath": "cac:AllowanceCharge[cbc:ChargeIndicator='true']/cbc:Amount",
+   "scope": "line",
+   "type": "money"
+  },
+  {
+   "id": "line.kdvRate",
+   "group": "line",
+   "label": "KDV Oranı",
+   "xpath": "cac:TaxTotal/cac:TaxSubtotal[cac:TaxCategory/cac:TaxScheme/cbc:TaxTypeCode='0015']/cbc:Percent",
+   "scope": "line",
+   "type": "percent"
+  },
+  {
+   "id": "line.kdvAmount",
+   "group": "line",
+   "label": "KDV Tutarı",
+   "xpath": "cac:TaxTotal/cac:TaxSubtotal[cac:TaxCategory/cac:TaxScheme/cbc:TaxTypeCode='0015']/cbc:TaxAmount",
+   "scope": "line",
+   "type": "money"
+  },
+  {
+   "id": "line.taxTotal",
+   "group": "line",
+   "label": "Vergi Toplamı",
+   "xpath": "cac:TaxTotal/cbc:TaxAmount",
+   "scope": "line",
+   "type": "money"
+  },
+  {
+   "id": "line.otherTaxes",
+   "group": "line",
+   "label": "Diğer Vergiler",
+   "xpath": "cac:TaxTotal/cac:TaxSubtotal[cac:TaxCategory/cac:TaxScheme/cbc:TaxTypeCode!='0015']",
+   "scope": "line",
+   "type": "text",
+   "note": "repeating subtotal; codegen renders code+amount"
+  },
+  {
+   "id": "line.exemptionReason",
+   "group": "line",
+   "label": "İstisna Sebebi",
+   "xpath": "cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:TaxExemptionReason",
+   "scope": "line",
+   "type": "text"
+  },
+  {
+   "id": "line.deliveryTerms",
+   "group": "line",
+   "label": "Teslim Şartı",
+   "xpath": "cac:Delivery/cac:DeliveryTerms/cbc:ID",
+   "scope": "line",
+   "type": "code",
+   "documentTypes": [
+    "EFATURA"
+   ]
+  },
+  {
+   "id": "tax.code",
+   "group": "tax",
+   "label": "Vergi Kodu",
+   "xpath": "cac:TaxCategory/cac:TaxScheme/cbc:TaxTypeCode",
+   "scope": "taxSubtotal",
+   "type": "code",
+   "codelist": "TaxTypeCode"
+  },
+  {
+   "id": "tax.name",
+   "group": "tax",
+   "label": "Vergi Adı",
+   "xpath": "cac:TaxCategory/cac:TaxScheme/cbc:Name",
+   "scope": "taxSubtotal",
+   "type": "text"
+  },
+  {
+   "id": "tax.rate",
+   "group": "tax",
+   "label": "Oran",
+   "xpath": "cbc:Percent",
+   "scope": "taxSubtotal",
+   "type": "percent"
+  },
+  {
+   "id": "tax.base",
+   "group": "tax",
+   "label": "Matrah",
+   "xpath": "cbc:TaxableAmount",
+   "scope": "taxSubtotal",
+   "type": "money"
+  },
+  {
+   "id": "tax.amount",
+   "group": "tax",
+   "label": "Vergi Tutarı",
+   "xpath": "cbc:TaxAmount",
+   "scope": "taxSubtotal",
+   "type": "money"
+  },
+  {
+   "id": "tax.exemptionCode",
+   "group": "tax",
+   "label": "İstisna Kodu",
+   "xpath": "cac:TaxCategory/cbc:TaxExemptionReasonCode",
+   "scope": "taxSubtotal",
+   "type": "code",
+   "codelist": "TaxExemptionReasonCode"
+  },
+  {
+   "id": "tax.exemptionReason",
+   "group": "tax",
+   "label": "İstisna Sebebi",
+   "xpath": "cac:TaxCategory/cbc:TaxExemptionReason",
+   "scope": "taxSubtotal",
+   "type": "text"
+  },
+  {
+   "id": "totals.lineExtension",
+   "group": "totals",
+   "label": "Mal Hizmet Toplam",
+   "xpath": "cac:LegalMonetaryTotal/cbc:LineExtensionAmount",
+   "scope": "document",
+   "type": "money",
+   "required": true
+  },
+  {
+   "id": "totals.allowance",
+   "group": "totals",
+   "label": "Toplam İskonto",
+   "xpath": "cac:LegalMonetaryTotal/cbc:AllowanceTotalAmount",
+   "scope": "document",
+   "type": "money"
+  },
+  {
+   "id": "totals.charge",
+   "group": "totals",
+   "label": "Toplam Artırım",
+   "xpath": "cac:LegalMonetaryTotal/cbc:ChargeTotalAmount",
+   "scope": "document",
+   "type": "money"
+  },
+  {
+   "id": "totals.taxExclusive",
+   "group": "totals",
+   "label": "Vergi Hariç Tutar",
+   "xpath": "cac:LegalMonetaryTotal/cbc:TaxExclusiveAmount",
+   "scope": "document",
+   "type": "money",
+   "required": true
+  },
+  {
+   "id": "totals.tax",
+   "group": "totals",
+   "label": "Hesaplanan KDV",
+   "xpath": "cac:TaxTotal/cbc:TaxAmount",
+   "scope": "document",
+   "type": "money",
+   "required": true
+  },
+  {
+   "id": "totals.taxInclusive",
+   "group": "totals",
+   "label": "Vergi Dahil Tutar",
+   "xpath": "cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount",
+   "scope": "document",
+   "type": "money",
+   "required": true
+  },
+  {
+   "id": "totals.withholding",
+   "group": "totals",
+   "label": "Tevkifat Toplamı",
+   "xpath": "cac:WithholdingTaxTotal/cbc:TaxAmount",
+   "scope": "document",
+   "type": "money"
+  },
+  {
+   "id": "totals.payable",
+   "group": "totals",
+   "label": "Ödenecek Tutar",
+   "xpath": "cac:LegalMonetaryTotal/cbc:PayableAmount",
+   "scope": "document",
+   "type": "money",
+   "required": true
+  },
+  {
+   "id": "totals.payableCurrency",
+   "group": "totals",
+   "label": "Ödenecek Para Birimi",
+   "xpath": "cac:LegalMonetaryTotal/cbc:PayableAmount/@currencyID",
+   "scope": "document",
+   "type": "code"
+  },
+  {
+   "id": "totals.tryTax",
+   "group": "totals",
+   "label": "KDV (TRY karşılığı)",
+   "xpath": "cac:TaxTotal/cbc:TaxAmount[@currencyID='TRY']",
+   "scope": "document",
+   "type": "money",
+   "note": "foreign currency invoices"
+  },
+  {
+   "id": "payment.means",
+   "group": "payment",
+   "label": "Ödeme Şekli",
+   "xpath": "cac:PaymentMeans/cbc:PaymentMeansCode",
+   "scope": "document",
+   "type": "code",
+   "codelist": "PaymentMeansCode"
+  },
+  {
+   "id": "payment.dueDate",
+   "group": "payment",
+   "label": "Son Ödeme Tarihi",
+   "xpath": "cac:PaymentMeans/cbc:PaymentDueDate",
+   "scope": "document",
+   "type": "date"
+  },
+  {
+   "id": "payment.iban",
+   "group": "payment",
+   "label": "IBAN",
+   "xpath": "cac:PaymentMeans/cac:PayeeFinancialAccount/cbc:ID",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "payment.bank",
+   "group": "payment",
+   "label": "Banka",
+   "xpath": "cac:PaymentMeans/cac:PayeeFinancialAccount/cac:FinancialInstitutionBranch/cac:FinancialInstitution/cbc:Name",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "payment.terms",
+   "group": "payment",
+   "label": "Ödeme Koşulu",
+   "xpath": "cac:PaymentTerms/cbc:Note",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "refs.order",
+   "group": "refs",
+   "label": "Sipariş No",
+   "xpath": "cac:OrderReference/cbc:ID",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "refs.orderDate",
+   "group": "refs",
+   "label": "Sipariş Tarihi",
+   "xpath": "cac:OrderReference/cbc:IssueDate",
+   "scope": "document",
+   "type": "date"
+  },
+  {
+   "id": "refs.despatch",
+   "group": "refs",
+   "label": "İrsaliye No",
+   "xpath": "cac:DespatchDocumentReference/cbc:ID",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "refs.despatchDate",
+   "group": "refs",
+   "label": "İrsaliye Tarihi",
+   "xpath": "cac:DespatchDocumentReference/cbc:IssueDate",
+   "scope": "document",
+   "type": "date"
+  },
+  {
+   "id": "refs.billing",
+   "group": "refs",
+   "label": "İade Edilen Fatura",
+   "xpath": "cac:BillingReference/cac:InvoiceDocumentReference/cbc:ID",
+   "scope": "document",
+   "type": "text"
+  },
+  {
+   "id": "refs.additional",
+   "group": "refs",
+   "label": "Ek Belge",
+   "xpath": "cac:AdditionalDocumentReference[cbc:DocumentTypeCode!='XSLT']/cbc:ID",
+   "scope": "document",
+   "type": "text",
+   "note": "repeating; excludes embedded XSLT ref"
+  },
+  {
+   "id": "refs.okcSerial",
+   "group": "refs",
+   "label": "ÖKC Seri No",
+   "xpath": "cac:AdditionalDocumentReference[cbc:DocumentType='OKC']/cbc:ID",
+   "scope": "document",
+   "type": "text",
+   "documentTypes": [
+    "EARSIV"
+   ]
+  },
+  {
+   "id": "refs.sendType",
+   "group": "refs",
+   "label": "Gönderim Şekli",
+   "xpath": "cac:AdditionalDocumentReference[cbc:DocumentTypeCode='SEND_TYPE']/cbc:DocumentType",
+   "scope": "document",
+   "type": "code",
+   "documentTypes": [
+    "EARSIV"
+   ]
+  },
+  {
+   "id": "derived.payableInWords",
+   "group": "totals",
+   "label": "Yalnız (yazıyla)",
+   "xpath": "$payableInWords",
+   "scope": "document",
+   "type": "text",
+   "note": "synthetic: codegen implements number→words template"
+  },
+  {
+   "id": "derived.watermark",
+   "group": "doc",
+   "label": "Filigran",
+   "xpath": "$watermark",
+   "scope": "document",
+   "type": "text",
+   "note": "synthetic: 'e-Arşiv Fatura' or 'e-Fatura' by ProfileID"
+  },
+  {
+   "id": "derived.pageNo",
+   "group": "doc",
+   "label": "Sayfa",
+   "xpath": "$page",
+   "scope": "document",
+   "type": "text",
+   "note": "synthetic: print pagination"
+  }
+ ]
+}
