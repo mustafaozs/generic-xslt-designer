@@ -1,0 +1,15 @@
+openapi: 3.1.0
+info: {title: billing, version: 1.0.0}
+paths:
+  /invoices:
+    post:
+      summary: Create invoice
+      responses: {"201": {description: created}}
+components:
+  schemas:
+    Invoice:
+      type: object
+      required: [id, lines]
+      properties:
+        id: {type: string}
+        lines: {type: array, items: {type: object}}
