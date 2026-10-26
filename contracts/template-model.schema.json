@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mustafaozs/generic-xslt-designer/contracts/template-model.schema.json",
+  "title": "Template",
+  "description": "A printable e-document design. Produced by the designer, consumed by xslt-codegen. Version 1 — breaking changes bump `version`.",
+  "type": "object",
+  "required": ["version", "documentType", "page", "theme", "sections"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "const": 1 },
+    "name": { "type": "string", "maxLength": 120 },
+    "documentType": { "enum": ["EFATURA", "EARSIV"] },
+    "page": {
+      "type": "object", "required": ["size", "margins"], "additionalProperties": false,
+      "properties": {
+        "size": { "enum": ["A4", "A5"] },
+        "orientation": { "enum": ["portrait", "landscape"], "default": "portrait" },
+        "margins": { "$ref": "#/$defs/box" }
+      }
+    },
+    "theme": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "fontFamily": { "enum": ["Arial", "Helvetica", "Times New Roman", "Courier New", "Verdana", "Tahoma"] },
+        "fontSize": { "type": "number", "minimum": 6, "maximum": 14 },
+        "primaryColor": { "$ref": "#/$defs/color" },
+        "textColor": { "$ref": "#/$defs/color" },
+        "borderStyle": { "enum": ["solid", "dashed", "double", "none"] }
+      }
+    },
+    "sections": {
+      "type": "array", "minItems": 1, "maxItems": 20,
+      "items": { "$ref": "#/$defs/section" }
+    }
+  },
+  "$defs": {
+    "box": {
+      "type": "object", "required": ["top", "right", "bottom", "left"], "additionalProperties": false,
+      "properties": { "top": {"type":"number","minimum":0}, "right": {"type":"number","minimum":0},
+                      "bottom": {"type":"number","minimum":0}, "left": {"type":"number","minimum":0} },
+      "description": "millimetres"
+    },
+    "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+    "section": {
+      "type": "object", "required": ["id", "kind", "blocks"], "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,40}$" },
+        "kind": { "enum": ["header", "parties", "body", "lines", "totals", "notes", "footer"] },
+        "repeatOnEveryPage": { "type": "boolean", "default": false },
+        "columns": { "type": "integer", "minimum": 1, "maximum": 4, "default": 1 },
+        "blocks": { "type": "array", "maxItems": 40, "items": { "$ref": "#/$defs/block" } }
+      }
+    },
+    "block": {
+      "type": "object", "required": ["id", "type"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,40}$" },
+        "type": { "enum": ["text", "field", "logo", "lineTable", "taxTable", "totals", "qr", "signature", "spacer", "rule"] },
+        "column": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "style": { "$ref": "#/$defs/style" }
+      },
+      "allOf": [
+        { "if": {"properties": {"type": {"const": "text"}}},   "then": {"required": ["text"],  "properties": {"text": {"type":"string","maxLength":2000}}} },
+        { "if": {"properties": {"type": {"const": "field"}}},  "then": {"required": ["field"], "properties": {
+            "field": {"type":"string","description":"catalog field id, see ubl-catalog"},
+            "label": {"type":"string","maxLength":80},
+            "format": {"enum":["text","date","money","number","percent"]},
+            "hideWhenEmpty": {"type":"boolean","default":true} } } },
+        { "if": {"properties": {"type": {"const": "logo"}}},   "then": {"required": ["dataUri"], "properties": {
+            "dataUri": {"type":"string","pattern":"^data:image/(png|jpeg|svg\\+xml);base64,","maxLength":200000},
+            "widthMm": {"type":"number","minimum":5,"maximum":120} } } },
+        { "if": {"properties": {"type": {"const": "lineTable"}}}, "then": {"required": ["columns"], "properties": {
+            "columns": {"type":"array","minItems":1,"maxItems":14,"items":{"type":"object","required":["field","label"],"additionalProperties":false,
+              "properties":{"field":{"type":"string"},"label":{"type":"string","maxLength":40},"widthPct":{"type":"number","minimum":3,"maximum":80},
+                            "align":{"enum":["left","right","center"]},"format":{"enum":["text","date","money","number","percent"]}}}},
+            "maxRowsPerPage": {"type":"integer","minimum":5,"maximum":60} } } },
+        { "if": {"properties": {"type": {"const": "totals"}}},  "then": {"properties": {
+            "rows": {"type":"array","items":{"enum":["lineExtension","allowance","charge","taxExclusive","tax","withholding","taxInclusive","payable","payableInWords"]}} } } },
+        { "if": {"properties": {"type": {"const": "qr"}}},      "then": {"properties": {"content": {"enum":["ettn","gibVerify"]}, "sizeMm": {"type":"number","minimum":15,"maximum":50}} } }
+      ]
+    },
+    "style": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "fontSize": {"type":"number","minimum":6,"maximum":24}, "bold": {"type":"boolean"}, "italic": {"type":"boolean"},
+        "align": {"enum":["left","right","center"]}, "color": {"$ref":"#/$defs/color"}, "background": {"$ref":"#/$defs/color"},
+        "border": {"type":"boolean"}, "padding": {"type":"number","minimum":0,"maximum":10}
+      }
+    }
+  }
+}

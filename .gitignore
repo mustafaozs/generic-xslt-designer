@@ -5,3 +5,6 @@ __pycache__/
 *.egg-info/
 node_modules/
 .pytest_cache/
+_to_delete/
+node_modules/
+modules/template-model/src/types.generated.ts

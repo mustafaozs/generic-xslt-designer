@@ -1,4 +1,4 @@
-# project-os
+# generic-xslt-designer
 
 Contract-bounded agentic development. You never read the whole repo; you read
 STATE.md, the last ledger entries, the symbol map, then the module cards you need.
@@ -15,6 +15,7 @@ STATE.md, the last ledger entries, the symbol map, then the module cards you nee
   `contracts/` schemas. Open source files only when a card is not enough.
 
 ## Commands
+- `npm test`            vitest (TypeScript modules); `npm run gen:types` after schema changes
 - `pos index`            rebuild graph for changed files
 - `pos query "<sql>"`    query .project-os/index.db
 - `pos impact <target>`  reverse-dependency closure, affected tests
@@ -33,3 +34,5 @@ STATE.md, the last ledger entries, the symbol map, then the module cards you nee
 ## Style
 - Small PRs tied to one issue. Tests first when the task has acceptance criteria.
 - Prefer running single tests over the full suite.
+- Generated XSLT is 1.0 only (ADR-0002). Never write XPath 2.0, even in tests.
+- Fields bind by catalog id; never put raw XPath in a template.

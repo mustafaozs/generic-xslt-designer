@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UBL-TR field catalog",
+  "description": "Every field the designer may bind. `xpath` is relative to the document root (Invoice) unless `scope` says otherwise; `line` fields are relative to cac:InvoiceLine. XSLT 1.0-safe XPath only.",
+  "type": "object",
+  "required": ["version", "documentTypes", "groups", "fields"],
+  "properties": {
+    "version": { "type": "string" },
+    "documentTypes": { "type": "array", "items": { "enum": ["EFATURA", "EARSIV"] } },
+    "groups": { "type": "array", "items": { "type": "object", "required": ["id", "label"],
+      "properties": { "id": {"type":"string"}, "label": {"type":"string"} } } },
+    "fields": { "type": "array", "items": { "type": "object", "required": ["id", "group", "label", "xpath", "scope", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9.]+$" },
+        "group": { "type": "string" },
+        "label": { "type": "string" },
+        "xpath": { "type": "string" },
+        "scope": { "enum": ["document", "line", "taxSubtotal"] },
+        "type": { "enum": ["text", "date", "time", "money", "number", "percent", "code", "boolean"] },
+        "codelist": { "type": "string", "description": "UBL-TR_Codelist id for code → label lookup" },
+        "required": { "type": "boolean" },
+        "documentTypes": { "type": "array", "items": { "enum": ["EFATURA", "EARSIV"] } },
+        "note": { "type": "string" }
+      } } }
+  }
+}
