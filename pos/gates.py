@@ -283,7 +283,7 @@ def _median(xs):
 def metrics_report(root: Path, as_json: bool = False) -> str:
     """Per-hypothesis numbers from docs/research/hypotheses.md. Descriptive only; verdicts are written by a human into evidence/."""
     recs = _records(root)
-    cbad = [r for r in recs if r.get("condition", "cbad") == "cbad"]
+    cbad = [r for r in recs if r.get("condition") == "cbad"]  # setup and unlabelled records are excluded from both arms
     ctrl = [r for r in recs if r.get("condition") == "control"]
 
     def share(rs, pred):

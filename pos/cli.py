@@ -18,6 +18,11 @@ def _print(ok: bool, msgs: list[str]) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    for s in (sys.stdout, sys.stderr):  # Windows consoles (cp1254) crash on → and Turkish letters
+        try:
+            s.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
     ap = argparse.ArgumentParser(prog="pos", description="project-os: contract-bounded agentic development kit")
     ap.add_argument("--root", type=Path, default=None, help="repo root (auto-detected)")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -48,7 +53,7 @@ def main(argv: list[str] | None = None) -> int:
 
     m = sub.add_parser("metrics", help="task metrics").add_subparsers(dest="sub", required=True)
     ml = m.add_parser("log", help="one record per task (protocol §3)"); ml.add_argument("--issue", required=True)
-    ml.add_argument("--condition", choices=["cbad", "control"], default="cbad"); ml.add_argument("--model", default=None)
+    ml.add_argument("--condition", choices=["cbad", "control", "setup"], required=True); ml.add_argument("--model", default=None)
     ml.add_argument("--tokens-in", type=int, default=None); ml.add_argument("--tokens-out", type=int, default=None)
     ml.add_argument("--tokens-discovery", type=int, default=None, help="input tokens before first edit")
     ml.add_argument("--cache-read", type=int, default=None, help="prompt-cache read tokens (H9 prefix caching)")
