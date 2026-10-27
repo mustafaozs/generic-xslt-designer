@@ -56,9 +56,11 @@ jobs:
         if: github.event_name == 'pull_request'
         env: { PR_BODY: "${{ github.event.pull_request.body }}" }
         run: |
+          if echo "$PR_BODY" | grep -qiE '^task: *none'; then echo "::notice::chore PR (Task: none) — no metrics record required; ledger still required"; exit 0; fi
           ISSUE=$(echo "$PR_BODY" | grep -oiE '(closes|fixes|resolves) #[0-9]+' | head -1 | grep -oE '#[0-9]+' || true)
-          if [ -z "$ISSUE" ]; then echo "::error::PR body must contain 'Closes #<issue>'"; exit 1; fi
+          if [ -z "$ISSUE" ]; then echo "::error::PR body must contain 'Closes #<issue>' (or a line 'Task: none' for chores outside the task protocol)"; exit 1; fi
           pos metrics check --issue "$ISSUE"
+          echo "gate seconds: $(( $(date +%s) - GATE_START ))"
       - name: Upload research artefacts
         uses: actions/upload-artifact@v4
         with:
