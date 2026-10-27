@@ -28,11 +28,26 @@ def db_path(root: Path) -> Path:
     return d / "index.db"
 
 
-def iter_source_files(root: Path):
+def _tracked_set(root: Path) -> set[str] | None:
+    """Paths git tracks (plus untracked-but-not-ignored). None when not a git repo."""
+    out = git(root, "ls-files", "--cached", "--others", "--exclude-standard", "-z")
+    if not out and not (root / ".git").exists():
+        return None
+    return {s for s in out.split("\0") if s}
+
+
+def iter_source_files(root: Path, tracked: set[str] | None = None):
+    """Source files the kit may hash or index: never generated/ignored files (their presence
+    differs between a dev machine and CI, which would make card hashes environment-dependent)."""
+    if tracked is None:
+        tracked = _tracked_set(root)
     for p in root.rglob("*"):
         if not p.is_file() or p.suffix not in SOURCE_EXT:
             continue
+        r = p.relative_to(root).as_posix()
         if any(part in SKIP_DIRS for part in p.relative_to(root).parts):
+            continue
+        if tracked is not None and r not in tracked:
             continue
         yield p
 
@@ -49,9 +64,11 @@ def module_of(relpath: str) -> str | None:
 
 
 def is_test_path(relpath: str) -> bool:
+    """A test is named like one; helpers under tests/ are not tests (they are support code)."""
     name = Path(relpath).name
-    return "/tests/" in f"/{relpath}" or name.startswith("test_") or name.endswith("_test.py") \
-        or name.endswith(".test.ts") or name.endswith(".spec.ts") or name.endswith(".test.tsx")
+    return name.startswith("test_") or name.endswith("_test.py") or name.endswith(".test.ts") \
+        or name.endswith(".spec.ts") or name.endswith(".test.tsx") or name.endswith(".spec.tsx") \
+        or name.endswith("_test.go") or name.endswith("Test.java") or name.endswith("Tests.cs")
 
 
 def _norm(b: bytes) -> bytes:
@@ -67,7 +84,8 @@ def module_hash(root: Path, module: str) -> str:
     """Hash of a module's non-test source, order-independent. This is what cards pin."""
     h = hashlib.sha256()
     base = root / MODULES_DIR / module
-    for p in sorted(iter_source_files(base), key=lambda x: x.as_posix()):
+    tracked = _tracked_set(root)
+    for p in sorted(_module_files(root, base, tracked), key=lambda x: x.as_posix()):
         r = rel(root, p)
         if is_test_path(r):
             continue
@@ -76,18 +94,30 @@ def module_hash(root: Path, module: str) -> str:
     return h.hexdigest()[:16]
 
 
+def _module_files(root: Path, base: Path, tracked: set[str] | None):
+    for p in base.rglob("*"):
+        if not p.is_file() or p.suffix not in SOURCE_EXT:
+            continue
+        r = p.relative_to(root).as_posix()
+        if any(part in SKIP_DIRS for part in p.relative_to(root).parts):
+            continue
+        if tracked is not None and r not in tracked:
+            continue
+        yield p
+
+
 def list_modules(root: Path) -> list[str]:
     base = root / MODULES_DIR
     if not base.is_dir():
         return []
     return sorted(p.name for p in base.iterdir()
                   if p.is_dir() and not p.name.startswith((".", "_")) and p.name not in SKIP_DIRS
-                  and any(True for _ in iter_source_files(p)))
+                  and any(True for _ in _module_files(root, p, _tracked_set(root))))
 
 
 def git(root: Path, *args: str) -> str:
     try:
-        return subprocess.check_output(["git", *args], cwd=root, text=True, stderr=subprocess.DEVNULL).strip()
+        return subprocess.check_output(["git", *args], cwd=root, text=True, encoding="utf-8", errors="replace", stderr=subprocess.DEVNULL).strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         return ""
 

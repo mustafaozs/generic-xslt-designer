@@ -27,4 +27,4 @@ Testler: modules/xslt-codegen/tests — `generate.test.ts` (bağlama kuralları)
 Son değişiklikler:
 - #3: ilk gövde; blok tipleri text/field/logo/lineTable/taxTable/totals/qr/signature/spacer/rule; golden `earsiv-default`
 
-hash: 6f12d2c374c9db90
+hash: 02b642c53690e24c
