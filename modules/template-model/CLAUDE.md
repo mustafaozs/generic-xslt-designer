@@ -20,4 +20,4 @@ Testler: modules/template-model/tests
 Son değişiklikler:
 - (none yet)
 
-hash: f94b7826017d12a1
+hash: a443d25e182db16d
