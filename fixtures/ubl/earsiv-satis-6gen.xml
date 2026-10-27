@@ -18,25 +18,25 @@
 	<!--<cbc:LineCountNumeric>4</cbc:LineCountNumeric>-->
 	<cac:AccountingSupplierParty>
 		<cac:Party>
-			<cbc:WebsiteURI>6gen.com</cbc:WebsiteURI>
+			<cbc:WebsiteURI>example.com</cbc:WebsiteURI>
 			<cac:PartyIdentification>
-				<cbc:ID schemeID="MERSISNO">2165349865475231</cbc:ID>
+				<cbc:ID schemeID="MERSISNO">0000000000000000</cbc:ID>
 			</cac:PartyIdentification>
 			<cac:PartyIdentification>
-				<cbc:ID schemeID="VKN">1111111125</cbc:ID>
+				<cbc:ID schemeID="VKN">1111111111</cbc:ID>
 			</cac:PartyIdentification>
 			<cac:PartyName>
-				<cbc:Name>6 Gen Yazılım San.VeTic.Ltd.Şti.</cbc:Name>
+				<cbc:Name>Örnek Satıcı Yazılım A.Ş.</cbc:Name>
 			</cac:PartyName>
 			<cac:PostalAddress>
 				<cbc:Room>15</cbc:Room>
-				<cbc:StreetName>Bardakçılar cd.</cbc:StreetName>
-				<cbc:BuildingName>ap.name</cbc:BuildingName>
+				<cbc:StreetName>Örnek Cad.</cbc:StreetName>
+				<cbc:BuildingName>Örnek Apt.</cbc:BuildingName>
 				<cbc:BuildingNumber>20</cbc:BuildingNumber>
-				<cbc:CitySubdivisionName>asgsafg</cbc:CitySubdivisionName>
+				<cbc:CitySubdivisionName>Örnek Mah.</cbc:CitySubdivisionName>
 				<cbc:CityName>İStanbul</cbc:CityName>
 				<cbc:PostalZone>34524</cbc:PostalZone>
-				<cbc:Region>cumhuriyet mh.</cbc:Region>
+				<cbc:Region>Örnek Bölge</cbc:Region>
 				<cac:Country>
 					<cbc:Name>Türkiye</cbc:Name>
 				</cac:Country>
@@ -47,9 +47,9 @@
 				</cac:TaxScheme>
 			</cac:PartyTaxScheme>
 			<cac:Contact>
-				<cbc:Telephone>5349384882</cbc:Telephone>
-				<cbc:Telefax>1341341341</cbc:Telefax>
-				<cbc:ElectronicMail>murat.sercan2@pavopay.dev</cbc:ElectronicMail>
+				<cbc:Telephone>0000000000</cbc:Telephone>
+				<cbc:Telefax>0000000000</cbc:Telefax>
+				<cbc:ElectronicMail>fatura@example.com</cbc:ElectronicMail>
 			</cac:Contact>
 		</cac:Party>
 	</cac:AccountingSupplierParty>
@@ -62,15 +62,15 @@
 				<cbc:Name>Nihai Tüketici</cbc:Name>
 			</cac:PartyName>
 			<cac:PostalAddress>
-				<cbc:CitySubdivisionName>İZNİK</cbc:CitySubdivisionName>
+				<cbc:CitySubdivisionName>Örnek Mah.</cbc:CitySubdivisionName>
 				<cbc:CityName>BURSA</cbc:CityName>
 				<cac:Country>
 					<cbc:Name>Türkiye</cbc:Name>
 				</cac:Country>
 			</cac:PostalAddress>
 			<cac:Person>
-				<cbc:FirstName>Nihai</cbc:FirstName>
-				<cbc:FamilyName>Tüketici</cbc:FamilyName>
+				<cbc:FirstName>Örnek</cbc:FirstName>
+				<cbc:FamilyName>Alıcı</cbc:FamilyName>
 				<cbc:MiddleName></cbc:MiddleName>
 			</cac:Person>
 		</cac:Party>

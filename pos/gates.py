@@ -217,7 +217,10 @@ def metrics_log(root: Path, **fields) -> dict:
     existing = next((r for r in recs if str(r.get("issue")) == issue), None)
     if existing is not None:
         # upsert: keep earlier non-null fields, overwrite with newly supplied ones
-        merged = {**existing, **{k: v for k, v in rec.items() if v is not None and k not in ("t", "date")}}
+        # keep the original diff size and query rungs: they describe the task's branch at first log time,
+        # a later token-only update may run from another branch
+        update = {k: v for k, v in rec.items() if v is not None and k not in ("t", "date", "diff_lines", "rungs_queried")}
+        merged = {**existing, **update}
         merged["updated_t"] = rec["t"]
         recs = [merged if str(r.get("issue")) == issue else r for r in recs]
         p.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in recs), encoding="utf-8")
@@ -305,6 +308,7 @@ def metrics_report(root: Path, as_json: bool = False) -> str:
         "H7_review_returns_per_10": (sum(r.get("review_returns", 0) or 0 for r in cbad) / len(cbad) * 10) if cbad else None,
         "H8_share_hit_rung5": share(cbad, lambda r: 5 in (r.get("rungs_queried") or []) or r.get("stopped_at") == 5),
         "H9_median_gate_seconds": _median(r.get("gate_seconds") for r in cbad),
+        "H9_median_cache_share": _median((r["cache_read"] / (r["cache_read"] + r["tokens_in"])) for r in cbad if r.get("cache_read") and r.get("tokens_in")),
         "models": sorted({r.get("model", "?") for r in recs}),
     }
     if as_json:
