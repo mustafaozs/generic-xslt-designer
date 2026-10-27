@@ -1,0 +1,3 @@
+#!/bin/sh
+# Strip model/session attribution lines before the commit is created (see scripts/attribution_guard.py).
+python scripts/attribution_guard.py --strip "$1" 2>/dev/null || python3 scripts/attribution_guard.py --strip "$1"

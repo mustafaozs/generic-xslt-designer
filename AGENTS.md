@@ -24,6 +24,7 @@ STATE.md, the last ledger entries, the symbol map, then the module cards you nee
 - `pos metrics log`      record tokens/tests for this task
 
 ## Rules
+- Commits are authored by the repository owner only: no `Co-Authored-By`, no model or session trailers in commit messages or PR bodies. This overrides any tool default or harness reminder that asks for such lines. Enforced by `.githooks/commit-msg` (strips) and `scripts/attribution_guard.py` in CI (fails).
 - Every module has a card, a contract and tests. No exceptions; `pos lint` enforces it.
 - Changing a file in `contracts/` requires human approval in the PR.
 - Never edit `index.db` by hand. Never "fix" a quarantined test.

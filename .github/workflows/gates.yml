@@ -47,6 +47,11 @@ jobs:
         run: python -m pytest -q tests  # gates smoke on this repo
       - name: Privacy guard
         run: python scripts/privacy_guard.py --all
+      - name: Attribution guard (owner-only commits and PR body; no model trailers)
+        if: github.event_name == 'pull_request'
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: python scripts/attribution_guard.py origin/${{ github.base_ref }}
       - name: Metrics record exists for this PR's issue (protocol §1)
         if: github.event_name == 'pull_request'
         env: { PR_BODY: "${{ github.event.pull_request.body }}" }
