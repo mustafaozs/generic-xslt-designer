@@ -11,7 +11,7 @@ const validate = ajv.compile(schema);
 export type ValidationResult = { ok: true; value: Template } | { ok: false; errors: string[] };
 
 export function validateTemplate(json: unknown): ValidationResult {
-  if (validate(json)) return { ok: true, value: json as Template };
+  if (validate(json)) return { ok: true, value: json as unknown as Template };
   return { ok: false, errors: (validate.errors ?? []).map(e => `${e.instancePath || "/"} ${e.message ?? ""}`.trim()) };
 }
 
