@@ -51,6 +51,7 @@ def main(argv: list[str] | None = None) -> int:
     ml.add_argument("--condition", choices=["cbad", "control"], default="cbad"); ml.add_argument("--model", default=None)
     ml.add_argument("--tokens-in", type=int, default=None); ml.add_argument("--tokens-out", type=int, default=None)
     ml.add_argument("--tokens-discovery", type=int, default=None, help="input tokens before first edit")
+    ml.add_argument("--cache-read", type=int, default=None, help="prompt-cache read tokens (H9 prefix caching)")
     ml.add_argument("--stopped-at", type=int, default=None, help="deepest retrieval rung used (1-6)")
     ml.add_argument("--tests-selected", type=int, default=None); ml.add_argument("--tests-ran", type=int, default=None)
     ml.add_argument("--tests-full", type=int, default=None); ml.add_argument("--impact-misses", type=int, default=None)
@@ -99,7 +100,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "metrics":
         if a.sub == "log":
             print(json.dumps(gates.metrics_log(root, issue=a.issue, condition=a.condition, model=a.model, tokens_in=a.tokens_in,
-                tokens_out=a.tokens_out, tokens_discovery=a.tokens_discovery, stopped_at=a.stopped_at, tests_selected=a.tests_selected,
+                tokens_out=a.tokens_out, tokens_discovery=a.tokens_discovery, cache_read=a.cache_read, stopped_at=a.stopped_at, tests_selected=a.tests_selected,
                 tests_ran=a.tests_ran, tests_full=a.tests_full, impact_misses=a.impact_misses, card_fail_first_push=a.card_fail_first_push,
                 ledger_fail_first_push=a.ledger_fail_first_push, review_returns=a.review_returns, gate_seconds=a.gate_seconds, base=a.base), ensure_ascii=False)); return 0
         if a.sub == "check": return _print(*gates.metrics_check(root, a.issue))

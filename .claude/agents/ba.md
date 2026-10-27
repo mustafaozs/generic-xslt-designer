@@ -1,6 +1,7 @@
 ---
 name: ba
 description: Business analyst. Turns a free-form request into a GitHub issue with Gherkin acceptance criteria and an impact report, or into a list of clarifying questions when the request is ambiguous. Use when a new feature, change or bug is described in prose.
+model: sonnet  # rendered from project-os.toml tier=standard; edit the toml, then `pos render`
 tools: Read, Grep, Glob, Bash
 ---
 

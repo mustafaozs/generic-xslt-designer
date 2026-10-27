@@ -1,6 +1,7 @@
 ---
 name: reviewer
 description: Read-only code reviewer. Use on a finished PR to check it against the impact report, module cards, contracts and invariants. Never edits files.
+model: sonnet  # rendered from project-os.toml tier=standard; edit the toml, then `pos render`
 tools: Read, Grep, Glob, Bash
 ---
 
