@@ -24,3 +24,9 @@ export interface RuleHit { rule: string; blockId?: string; message: string }
 ## Golden tests
 `modules/xslt-codegen/tests/golden/<case>/{template.json, expected.xslt, expected.html}`.
 `expected.html` is produced by transforming `fixtures/ubl/*.xml` with the generated XSLT through **both** engines (browser XSLTProcessor and .NET XslCompiledTransform); they must be byte-identical after whitespace normalisation.
+
+## Engines used for parity (decided 2026-10-27, task #2)
+- **Reference XSLT 1.0 engine in CI:** libxslt via Python `lxml` (strict 1.0; what GİB-side .NET behaves like for our subset). `pip install lxml`.
+- **Browser engine:** Chromium `XSLTProcessor` via Playwright (already installed in CI image / `npx playwright install chromium`).
+- **.NET `XslCompiledTransform`:** verified in the OverEGov integration (H4), not in this repo's CI.
+- Golden layout: `modules/xslt-codegen/tests/golden/<case>/template.json`, `expected.xslt`, `expected.html`; input UBL from `fixtures/ubl/`. `expected.html` is libxslt output with whitespace normalised; the browser job must match it.
