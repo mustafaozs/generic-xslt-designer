@@ -1,0 +1,29 @@
+# project-os.toml — provider/tier map. Edit this; never edit rendered agent files by hand.
+[tiers]
+cheap    = "mechanical: index, cards, ledger entry, impact report"
+standard = "implementation, review, business analysis"
+strong   = "contract or architecture decisions (human-approved)"
+
+[providers.anthropic]
+cheap = "claude-haiku-5-5"
+standard = "claude-sonnet-5-5"
+strong = "claude-opus-5-5"
+
+[providers.openai]
+cheap = "gpt-5-mini"
+standard = "gpt-5"
+strong = "gpt-5-pro"
+
+[providers.local]            # ollama / vllm; no account, no quota
+cheap = "qwen3.6-35b-a3b"
+standard = "qwen3.6-35b-a3b"
+strong = "deepseek-v4-flash"
+
+[policy]
+default = "anthropic"
+fallback = ["local"]          # used when the default provider's quota is exhausted
+strong_requires_human = true  # a strong-tier call is itself a gate
+record_model_per_task = true  # protocol §3: `model` field
+
+[harnesses]
+enabled = ["claude-code"]     # pos render targets: claude-code | codex | cursor | gemini | opencode

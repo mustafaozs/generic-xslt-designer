@@ -1,6 +1,7 @@
 ---
 name: pr-writer
 description: Documentation agent for a finished change. Refreshes module cards, writes the ledger entry and drafts an ADR if a design decision was made. Use after code and tests are done, before the PR is opened. Cheap-model work.
+model: haiku  # rendered from project-os.toml tier=cheap; edit the toml, then `pos render`
 tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
