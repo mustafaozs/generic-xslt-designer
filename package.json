@@ -6,7 +6,7 @@
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "gen:types": "json-schema-to-typescript contracts/template-model.schema.json -o modules/template-model/src/types.generated.ts"
+    "gen:types": "json2ts contracts/template-model.schema.json -o modules/template-model/src/types.generated.ts"
   },
   "devDependencies": {
     "ajv": "^8.17.1",

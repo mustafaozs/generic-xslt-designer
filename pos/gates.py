@@ -33,7 +33,7 @@ def card_check(root: Path, modules: list[str] | None = None) -> tuple[bool, list
             ok = False
             msgs.append(f"MISSING card: {p.relative_to(root)}  → `pos card new {m}`")
             continue
-        want, have = module_hash(root, m), card_hash_in(p.read_text())
+        want, have = module_hash(root, m), card_hash_in(p.read_text(encoding="utf-8"))
         if have != want:
             ok = False
             msgs.append(f"STALE card: {m} (card {have or 'none'} ≠ code {want}) → review card, then `pos card update {m}`")
@@ -44,13 +44,13 @@ def card_check(root: Path, modules: list[str] | None = None) -> tuple[bool, list
 
 def card_update(root: Path, module: str) -> str:
     p = card_path(root, module)
-    text = p.read_text()
+    text = p.read_text(encoding="utf-8")
     h = module_hash(root, module)
     if card_hash_in(text):
         text = re.sub(r"^hash:.*$", f"hash: {h}", text, flags=re.M)
     else:
         text = text.rstrip() + f"\n\nhash: {h}\n"
-    p.write_text(text)
+    p.write_text(text, encoding="utf-8")
     return h
 
 
@@ -65,7 +65,7 @@ def card_new(root: Path, module: str) -> Path:
                            WHERE b.module=? AND a.module IS NOT NULL AND a.module!=?""", (module, module)).fetchall()
     tests = con.execute("SELECT path FROM files WHERE module=? AND is_test=1", (module,)).fetchall()
     con.close()
-    tpl = (root / ".project-os" / "templates" / "CARD.md").read_text()
+    tpl = (root / ".project-os" / "templates" / "CARD.md").read_text(encoding="utf-8")
     surface = "\n".join(f"- `{s['signature']}`" for s in syms) or "- (none exported yet)"
     text = (tpl.replace("{module}", module)
             .replace("{one sentence}", "TODO: one sentence")
@@ -78,7 +78,7 @@ def card_new(root: Path, module: str) -> Path:
             .replace("{hash}", module_hash(root, module)))
     p = card_path(root, module)
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(text)
+    p.write_text(text, encoding="utf-8")
     return p
 
 
@@ -89,7 +89,7 @@ def ledger_file(root: Path, d: date | None = None) -> Path:
     p = root / "docs" / "ledger" / f"{d:%Y-%m}.md"
     if not p.is_file():
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(f"# Ledger {d:%Y-%m}\n\nNewest first. One entry per merge.\n")
+        p.write_text(f"# Ledger {d:%Y-%m}\n\nNewest first. One entry per merge.\n", encoding="utf-8")
     return p
 
 
@@ -97,7 +97,7 @@ def ledger_tail(root: Path, n: int = 10) -> str:
     files = sorted((root / "docs" / "ledger").glob("*.md"), reverse=True)
     entries = []
     for f in files:
-        parts = re.split(r"^(?=## )", f.read_text(), flags=re.M)
+        parts = re.split(r"^(?=## )", f.read_text(encoding="utf-8"), flags=re.M)
         entries += [p.strip() for p in parts if p.startswith("## ")]
         if len(entries) >= n:
             break
@@ -110,7 +110,7 @@ def ledger_check(root: Path, base: str | None = None) -> tuple[bool, list[str]]:
     shas = [s for s in shas if s]
     if not shas:
         return True, ["no commits to check"]
-    text = "\n".join(p.read_text() for p in (root / "docs" / "ledger").glob("*.md"))
+    text = "\n".join(p.read_text(encoding="utf-8") for p in (root / "docs" / "ledger").glob("*.md"))
 
     def recorded(s: str) -> bool:
         # either referenced by sha, or the commit itself adds/changes a ledger entry (self-recording)
@@ -135,7 +135,7 @@ def ledger_add(root: Path, issue: str, title: str, base: str | None = None,
     modules = sorted({m for m in (module_of(f) for f in files) if m}) or ["-"]
     if contracts is None:
         contracts = "changed (review!)" if any(f.startswith(f"{CONTRACTS_DIR}/") for f in files) else "unchanged"
-    tpl = (root / ".project-os" / "templates" / "LEDGER.md").read_text()
+    tpl = (root / ".project-os" / "templates" / "LEDGER.md").read_text(encoding="utf-8")
     entry = (tpl.replace("{date}", f"{date.today():%Y-%m-%d}").replace("{issue}", issue).replace("{title}", title)
              .replace("{sha}", sha).replace("{modules}", ", ".join(modules))
              .replace("unchanged | changed (breaking|compatible)", contracts)
@@ -144,10 +144,10 @@ def ledger_add(root: Path, issue: str, title: str, base: str | None = None,
              .replace("{in}", str(tokens_in)).replace("{out}", str(tokens_out))
              .replace("{remaining debt or none}", debt))
     p = ledger_file(root)
-    text = p.read_text()
+    text = p.read_text(encoding="utf-8")
     head, _, rest = text.partition("\n## ")
     new = head.rstrip() + "\n\n" + entry.strip() + "\n" + ("\n## " + rest if rest else "")
-    p.write_text(new)
+    p.write_text(new, encoding="utf-8")
     return entry
 
 
@@ -157,7 +157,7 @@ def lint(root: Path) -> tuple[bool, list[str]]:
     msgs, ok = [], True
     rc = root / "CLAUDE.md"
     if rc.is_file():
-        n = len(rc.read_text().splitlines())
+        n = len(rc.read_text(encoding="utf-8").splitlines())
         if n > ROOT_CLAUDE_MAX_LINES:
             ok = False
             msgs.append(f"root CLAUDE.md has {n} lines (> {ROOT_CLAUDE_MAX_LINES}): move detail into module cards")
@@ -173,7 +173,7 @@ def lint(root: Path) -> tuple[bool, list[str]]:
             ok = False
             msgs.append(f"{m}: no card (modules/{m}/CLAUDE.md)")
         else:
-            words = len(card_path(root, m).read_text().split())
+            words = len(card_path(root, m).read_text(encoding="utf-8").split())
             if words > CARD_MAX_WORDS:
                 ok = False
                 msgs.append(f"{m}: card has {words} words (> {CARD_MAX_WORDS}); move detail to a skill or docs")
@@ -199,7 +199,7 @@ def lint(root: Path) -> tuple[bool, list[str]]:
 
 def log_query(root: Path, kind: str, arg: str, result_size: int) -> None:
     p = root / ".project-os" / "queries.log"
-    with p.open("a") as f:
+    with p.open("a", encoding="utf-8") as f:
         f.write(json.dumps({"t": int(time.time()), "kind": kind, "arg": arg, "size": result_size}) + "\n")
 
 
@@ -212,7 +212,17 @@ def metrics_log(root: Path, **fields) -> dict:
     rec["diff_lines"] = sum(int(x) for x in m)
     rec["rungs_queried"] = _rungs_since_last_record(root)
     p = root / ".project-os" / "metrics.jsonl"
-    with p.open("a") as f:
+    recs = _records(root)
+    issue = str(rec.get("issue"))
+    existing = next((r for r in recs if str(r.get("issue")) == issue), None)
+    if existing is not None:
+        # upsert: keep earlier non-null fields, overwrite with newly supplied ones
+        merged = {**existing, **{k: v for k, v in rec.items() if v is not None and k not in ("t", "date")}}
+        merged["updated_t"] = rec["t"]
+        recs = [merged if str(r.get("issue")) == issue else r for r in recs]
+        p.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in recs), encoding="utf-8")
+        return merged
+    with p.open("a", encoding="utf-8") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     return rec
 
@@ -225,13 +235,13 @@ def _rungs_since_last_record(root: Path) -> list[int]:
     mp = root / ".project-os" / "metrics.jsonl"
     since = 0
     if mp.is_file():
-        lines = [l for l in mp.read_text().splitlines() if l.strip()]
+        lines = [l for l in mp.read_text(encoding="utf-8").splitlines() if l.strip()]
         if lines:
             since = json.loads(lines[-1]).get("t", 0)
     qp = root / ".project-os" / "queries.log"
     rungs = set()
     if qp.is_file():
-        for l in qp.read_text().splitlines():
+        for l in qp.read_text(encoding="utf-8").splitlines():
             try:
                 q = json.loads(l)
             except ValueError:
@@ -245,7 +255,7 @@ def _records(root: Path) -> list[dict]:
     p = root / ".project-os" / "metrics.jsonl"
     if not p.is_file():
         return []
-    return [json.loads(l) for l in p.read_text().splitlines() if l.strip()]
+    return [json.loads(l) for l in p.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 
 def metrics_check(root: Path, issue: str | None) -> tuple[bool, list[str]]:
