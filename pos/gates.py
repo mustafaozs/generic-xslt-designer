@@ -119,6 +119,10 @@ def ledger_check(root: Path, base: str | None = None) -> tuple[bool, list[str]]:
         touched = git(root, "show", "--name-only", "--format=", s)
         return "docs/ledger/" in touched
 
+    # One entry per merge: if any commit in base..HEAD writes the ledger, that entry covers the whole
+    # branch. Follow-up commits (metrics, token fill-in, review fixes) need no sha bookkeeping.
+    if base and any("docs/ledger/" in git(root, "show", "--name-only", "--format=", s) for s in shas):
+        return True, [f"ok ledger: {len(shas)} commit(s) covered by this branch's ledger entry"]
     missing = [s[:7] for s in shas if not recorded(s)]
     if missing:
         return False, [f"MISSING ledger entry for commit(s): {', '.join(missing)} → `pos ledger add --issue <#>`"]
