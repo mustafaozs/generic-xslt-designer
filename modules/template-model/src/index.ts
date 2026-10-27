@@ -48,7 +48,7 @@ export function defaultTemplate(documentType: "EFATURA" | "EARSIV"): Template {
         ] }
       ] },
       { id: "totals", kind: "totals", blocks: [
-        { id: "totals", type: "totals", rows: ["lineExtension", "taxExclusive", "tax", "payable", "payableInWords"] }
+        { id: "totals", type: "totals", rows: ["lineExtension", "allowance", "taxExclusive", "tax", "withholding", "taxInclusive", "payable", "payableInWords"] }
       ] }
     ]
   } as Template;
