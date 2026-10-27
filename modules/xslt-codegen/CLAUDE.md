@@ -25,6 +25,6 @@ Invariantlar:
 Testler: modules/xslt-codegen/tests — `generate.test.ts` (bağlama kuralları), `golden.test.ts` (golden/<case>: expected.xslt bayt eşitliği + libxslt ile expected.html). `npm run golden:update` yeniler; lxml yoksa html testi atlanır, CI `GOLDEN_REQUIRE_ENGINE=1` ile zorlar.
 
 Son değişiklikler:
-- #2: ilk gövde; blok tipleri text/field/logo/lineTable/taxTable/totals/qr/signature/spacer/rule; golden `earsiv-default`
+- #3: ilk gövde; blok tipleri text/field/logo/lineTable/taxTable/totals/qr/signature/spacer/rule; golden `earsiv-default`
 
 hash: 6f12d2c374c9db90
