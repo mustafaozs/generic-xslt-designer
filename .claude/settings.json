@@ -1,5 +1,11 @@
 {
   "includeCoAuthoredBy": false,
-  "attribution": { "commit": "", "pr": "" },
-  "env": { "GITHUB_TOKEN": "" }
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "env": {
+    "GITHUB_TOKEN": ""
+  },
+  "model": "sonnet"
 }
