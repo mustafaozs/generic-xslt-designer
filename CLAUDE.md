@@ -15,6 +15,7 @@ STATE.md, the last ledger entries, the symbol map, then the module cards you nee
   `contracts/` schemas. Open source files only when a card is not enough.
 
 ## Commands
+- First time on a machine: `pip install -e . lxml` and `npm install && npm run gen:types`
 - `npm test`            vitest (TypeScript modules); `npm run gen:types` after schema changes
 - `pos index`            rebuild graph for changed files
 - `pos query "<sql>"`    query .project-os/index.db
