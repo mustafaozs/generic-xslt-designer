@@ -5,7 +5,7 @@ Amaç: Tasarımcının ürettiği belge modelinin tipi ve doğrulayıcısı; saf
 Public yüzey:
 - `type Template` (contracts/template-model.schema.json'dan üretilir, elle yazılmaz)
 - `validateTemplate(json: unknown): { ok: true; value: Template } | { ok: false; errors: string[] }`
-- `defaultTemplate(documentType): Template`
+- `defaultTemplate(documentType): Template` (totals satırları: lineExtension, allowance, taxExclusive, tax, withholding, taxInclusive, payable, payableInWords — #4)
 
 Bağımlı olduğu: -
 Ona bağımlı: xslt-codegen, gib-rules, designer
@@ -18,6 +18,6 @@ Invariantlar:
 Testler: modules/template-model/tests
 
 Son değişiklikler:
-- (none yet)
+- #4: defaultTemplate totals satırlarına allowance, withholding, taxInclusive eklendi (imza değişmedi)
 
-hash: a443d25e182db16d
+hash: 828690c2a6b37b3e

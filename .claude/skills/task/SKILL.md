@@ -14,4 +14,4 @@ Rule: one issue per session. If this session already ran a task, tell the user t
 6. Run `/gate`. Record metrics: `pos metrics log --issue "#<N>" --condition <cbad|control> --model <dev model> --stopped-at <rung dev reported> --tests-ran <n> --tests-full <n>`; token totals are filled by the human from `/cost` after this session, before merge.
 7. Push the branch, open the PR with `Closes #<N>`, the impact report and the test command. Report in ≤10 lines: what changed, rung, tests, what the reviewer flagged, what needs the human.
 
-Never merge. Never amend or force-push. Never run a second issue in this session.
+Never merge. Never amend or force-push. Never add `Co-Authored-By` or any trailer to commits or PR bodies. Never run a second issue in this session.
