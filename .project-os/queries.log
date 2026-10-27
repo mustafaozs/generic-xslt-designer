@@ -1,3 +1,7 @@
 {"t": 1793049128, "kind": "map", "arg": "", "size": 1563}
 {"t": 1793049128, "kind": "impact", "arg": "contracts/template-model.schema.json", "size": 1}
 {"t": 1793049128, "kind": "impact", "arg": "loadCatalog", "size": 2}
+{"t": 1793090869, "kind": "map", "arg": "", "size": 13}
+{"t": 1793090875, "kind": "map", "arg": "", "size": 1563}
+{"t": 1793090884, "kind": "impact", "arg": "modules/xslt-codegen/src/index.ts", "size": 2}
+{"t": 1793091740, "kind": "impact", "arg": ".claude/skills/gate/SKILL.md .github/workflows/gates.yml .project-os/index.db-journal CLAUDE.md STATE.md contracts/xslt-codegen.md modules/xslt-codegen/CLAUDE.md modules/xslt-codegen/src/index.ts modules/xslt-codegen/tests/generate.test.ts modules/xslt-codegen/tests/golden.test.ts modules/xslt-codegen/tests/golden/README.md modules/xslt-codegen/tests/golden/earsiv-default/case.json modules/xslt-codegen/tests/golden/earsiv-default/expected.html modules/xslt-codegen/tests/golden/earsiv-default/expected.xslt modules/xslt-codegen/tests/golden/earsiv-default/template.json modules/xslt-codegen/tests/html-normalize.ts modules/xslt-codegen/tests/placeholder.test.ts package-lock.json package.json scripts/xslt-transform.py tsconfig.json", "size": 17}
