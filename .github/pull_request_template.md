@@ -13,3 +13,5 @@ Closes #
 - [ ] none
 - [ ] compatible
 - [ ] breaking — consumers: 
+
+<!-- Chore outside the task protocol (no issue, no metrics)? Replace the Closes line with: Task: none -->
