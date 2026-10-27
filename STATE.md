@@ -10,7 +10,7 @@ Locked decisions:
 - Golden reference engine is libxslt via `lxml` (contracts/xslt-codegen.md, 2026-10-27); .NET parity is checked in H4, browser parity is a CI job (pending).
 - Number-to-words (Yalnız …) is a recursive named template `in-words-tr` in the generated XSLT (task #3, 2026-10-27); verified identical on libxslt and .NET.
 
-Research protocol (docs/research/protocol.md): tasks #4–#8 are CONTROL tasks (kit present, not used: no pos impact/map/query, free code reading, full suite). From #9 on: cbad.
+Research protocol (docs/research/protocol.md): Control window = #4 plus the next four task issues worked (protocol v1.4 §2d, by order not number); then cbad. Live list: kit docs/research/evidence/control-window.md.
 
 Open questions:
 - Which 3 sample UBL files represent the parity suite. Have two fixtures: earsiv-satis-6gen (no InvoiceLine/LegalMonetaryTotal, ID/UUID/IssueDate commented out; golden html does not exercise lines, totals or in-words) and efatura-tevkifat (synthetic, 13 lines, KDV %20/%10, line allowance, withholding, totals; golden html exercises in-words).
