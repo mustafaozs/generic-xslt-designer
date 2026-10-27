@@ -22,10 +22,11 @@ Invariantlar:
 - Katalog XPath'leri `n1:Invoice` bağlamında çözülür (`xsl:for-each select="/n1:Invoice"`); alan kapsamı (document/line/taxSubtotal) blok tipiyle eşleşmezse `CG-FIELD-SCOPE`
 - Yazıyla tutar (Yalnız …) özyinelemeli `in-words-tr`/`in-words-tr-int` şablonudur (ADR-0002); bitişik yazım: `BirMilyonİkiYüz… TL Beş Kr`
 
-Testler: modules/xslt-codegen/tests — `generate.test.ts` (bağlama kuralları), `golden.test.ts` (golden/<case>: expected.xslt bayt eşitliği + libxslt ile expected.html), `efatura-fixture.test.ts` (#4: efatura-tevkifat kabul kriterleri). `npm run golden:update` yeniler; lxml yoksa html testi atlanır, CI `GOLDEN_REQUIRE_ENGINE=1` ile zorlar.
+Testler: modules/xslt-codegen/tests — `generate.test.ts` (bağlama kuralları), `golden.test.ts` (golden/<case>: expected.xslt bayt eşitliği + libxslt ile expected.html), `efatura-fixture.test.ts` (#4: efatura-tevkifat kabul kriterleri). `earsiv-full.test.ts` (#15: earsiv-full kabul kriterleri). `npm run golden:update` yeniler; lxml yoksa html testi atlanır, CI `GOLDEN_REQUIRE_ENGINE=1` ile zorlar.
 
 Son değişiklikler:
 - #3: ilk gövde; blok tipleri text/field/logo/lineTable/taxTable/totals/qr/signature/spacer/rule; golden `earsiv-default`
 - #4: ikinci fixture (sentetik e-Fatura TEVKIFAT, 13 satır, tevkifat, iskonto); golden `efatura-tevkifat`
+- #15: tam e-Arşiv fixture (4 kalem, toplam, filigran, not); golden `earsiv-full` ve `earsiv-full-nonote`; public yüzey değişmedi
 
 hash: 02b642c53690e24c
