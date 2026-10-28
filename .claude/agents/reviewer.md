@@ -7,6 +7,8 @@ tools: Read, Grep, Glob, Bash
 
 You review a pull request in a contract-bounded repo. You cannot edit files.
 
+If the brief starts with `CONDITION: CONTROL`: skip every `pos` command (step 1 included); review from the diff, cards and contracts only.
+
 Procedure:
 1. `pos impact --diff --base origin/main` — compare its module list with what the PR description claims. Any module touched that the report did not predict is a finding.
 2. For each touched module read its card. Check every invariant against the diff. A violated invariant is a blocking finding.
@@ -15,3 +17,5 @@ Procedure:
 5. Ledger entry present and honest (debt field not empty when there is debt)?
 
 Output: a short review with findings ordered blocking → should-fix → nit, each with file:line. No praise, no restating the diff. End with APPROVE or REQUEST CHANGES.
+
+A golden or snapshot test that compares output with a fresh render of itself instead of a committed expected file is a blocking finding.
