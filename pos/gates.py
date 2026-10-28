@@ -213,7 +213,9 @@ def metrics_log(root: Path, **fields) -> dict:
     rec.update({k: v for k, v in fields.items() if v is not None})
     stat = git(root, "diff", "--shortstat", "HEAD~1") if not fields.get("base") else git(root, "diff", "--shortstat", f"{fields['base']}...HEAD")
     m = re.findall(r"(\d+) (?:insertion|deletion)", stat)
-    rec["diff_lines"] = sum(int(x) for x in m)
+    explicit_diff = fields.get("diff_lines") is not None
+    if not explicit_diff:
+        rec["diff_lines"] = sum(int(x) for x in m)
     rec["rungs_queried"] = _rungs_since_last_record(root)
     p = root / ".project-os" / "metrics.jsonl"
     recs = _records(root)
@@ -223,7 +225,9 @@ def metrics_log(root: Path, **fields) -> dict:
         # upsert: keep earlier non-null fields, overwrite with newly supplied ones
         # keep the original diff size and query rungs: they describe the task's branch at first log time,
         # a later token-only update may run from another branch
-        update = {k: v for k, v in rec.items() if v is not None and k not in ("t", "date", "diff_lines", "rungs_queried")}
+        # diff_lines is re-measured only when the caller says against what: --base or an explicit --diff-lines
+        protected = ("t", "date", "rungs_queried") + (() if (explicit_diff or fields.get("base")) else ("diff_lines",))
+        update = {k: v for k, v in rec.items() if v is not None and k not in protected}
         merged = {**existing, **update}
         merged["updated_t"] = rec["t"]
         recs = [merged if str(r.get("issue")) == issue else r for r in recs]
