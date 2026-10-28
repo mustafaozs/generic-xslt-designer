@@ -24,6 +24,8 @@ default = "anthropic"
 fallback = ["local"]          # used when the default provider's quota is exhausted
 strong_requires_human = true  # a strong-tier call is itself a gate
 record_model_per_task = true  # protocol §3: `model` field
+human_rate_per_hour = 40      # EUR; /policy-review prices human_asks with it (docs/research/2026-10-28-decision-allocation.md)
+policy_review_every = 10      # merged tasks between /policy-review runs; /task reminds when due
 
 [harnesses]
 enabled = ["claude-code"]     # pos render targets: claude-code | codex | cursor | gemini | opencode
