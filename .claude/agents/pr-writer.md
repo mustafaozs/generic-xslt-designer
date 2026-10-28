@@ -12,3 +12,5 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 5. Run `pos gate --base origin/main`. Do not finish while it is red.
 
 Write in the repository's language (Turkish headings in cards/ADRs are fine; code identifiers stay as they are). Be terse: cards ≤300 words, ledger 8 lines.
+
+Ledger `tests:` line: `+<new> ~<changed> ran:<n> (<scope>)` where `<n>` is the number of tests the dev agent actually ran and `<scope>` says which (`full suite` or the selected set). It must equal `--tests-ran` in the metrics record.

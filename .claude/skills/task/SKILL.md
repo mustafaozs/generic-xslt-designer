@@ -4,14 +4,39 @@ description: Run one GitHub issue end to end with fresh-context subagents sized 
 allowed-tools: Bash Read Agent
 ---
 
+The human types only `/task <N>`. Everything below is decided here, not in the prompt.
+
 Rule: one issue per session. If this session already ran a task, tell the user to `/clear` first and stop.
 
-1. `gh issue view <N> --json title,body` — the issue is the brief. If STATE.md marks it a CONTROL task, skip step 2 and run the dev agent with "control condition: do not use pos impact/map/query; read freely; run the full suite".
-2. Spawn the **impact** agent (cheap) with the issue. If it returns `STOP`, post the report on the issue and ask the human; do not continue.
-3. Spawn the **dev** agent with issue + impact report. Default model sonnet; use opus only if the impact report says `contracts: changed` and a human has approved.
-4. Spawn the **pr-writer** agent (cheap): cards, ledger entry, ADR if a decision was made, STATE.md.
-5. Spawn the **reviewer** agent (read-only) on the diff; if it returns REQUEST CHANGES, send its findings back to a new dev agent once; a second REQUEST CHANGES stops and asks the human.
-6. Run `/gate`. Record metrics: `pos metrics log --issue "#<N>" --condition <cbad|control> --model <dev model> --stopped-at <rung dev reported> --tests-ran <n> --tests-full <n>`; token totals are filled by the human from `/cost` after this session, before merge.
-7. Push the branch, open the PR with `Closes #<N>`, the impact report and the test command. Report in ≤10 lines: what changed, rung, tests, what the reviewer flagged, what needs the human.
+## 0. Plan: who does what, under which condition
+- Brief: `env -u GITHUB_TOKEN gh issue view <N> --json title,body`. The issue is the brief.
+- Condition: read `.project-os/conditions.json` (`{"#14": "control", ...}`). Listed → that value. Not listed → `cbad`. Not present → `cbad`. Say the condition in your first line.
+- Roles are fixed. The orchestrator (you) never edits code, tests or fixtures; it only spawns agents, runs git/gh/pos bookkeeping and reports.
 
-Never merge. Never amend or force-push. Never add `Co-Authored-By` or any trailer to commits or PR bodies. Never run a second issue in this session.
+| step | agent | control | cbad |
+|---|---|---|---|
+| impact | impact (cheap) | skipped | runs; `STOP` → ask the human |
+| code + tests | dev | brief starts with `CONDITION: CONTROL` | brief includes impact report |
+| cards, ledger, STATE | pr-writer (cheap) | same | same |
+| review | reviewer | brief starts with `CONDITION: CONTROL` | normal |
+
+`CONDITION: CONTROL` means for every agent: no `pos impact`, `pos map`, `pos query`; read code freely; run the full suite.
+
+## 1. Run
+1. impact (cbad only). On `STOP`, post the report on the issue and stop.
+2. dev with the brief (and the impact report in cbad). Model sonnet; opus only if a human approved a contract change.
+3. pr-writer.
+4. reviewer on the diff. REQUEST CHANGES → one new dev agent with the findings; a second REQUEST CHANGES stops and asks the human.
+5. `/gate`.
+
+## 2. Record (never edit `.project-os/metrics.jsonl` by hand)
+`pos metrics log --issue "#<N>" --condition <condition> --model <dev model> --stopped-at <rung dev reported: 4 contracts, 5 source…> --tests-ran <n> --tests-full <n> --base origin/main --deviation "<none | what departed from the protocol>"`
+- `deviation` is only for departures from the protocol (condition leak, skipped step, model change). Design or template findings go to the ledger `debt` line.
+- `--base origin/main` is required: without it `diff_lines` measures only the last commit.
+- Leave token fields empty. The human pastes `/cost` to the research advisor, who returns one `pos metrics log … --tokens-in … --tokens-out … --cache-read …` command summed over all models.
+
+## 3. Ship
+Push the branch, open the PR with `Closes #<N>`, the impact report (cbad) or "control: no impact report", and the test command. Report in ≤10 lines: what changed, condition, rung, tests, reviewer findings, what needs the human.
+
+## Never
+Merge. Amend or force-push. Add `Co-Authored-By`, session links or "Generated with" to commits or PR bodies. Run a second issue in this session. Write a test that compares output with a fresh render of itself — golden tests compare with committed expected files.
