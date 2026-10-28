@@ -19,3 +19,5 @@ Procedure:
 Output: a short review with findings ordered blocking → should-fix → nit, each with file:line. No praise, no restating the diff. End with APPROVE or REQUEST CHANGES.
 
 A golden or snapshot test that compares output with a fresh render of itself instead of a committed expected file is a blocking finding.
+
+A conflict between sources that the diff resolved silently (code follows one source while a contract, schema, card or the issue says otherwise, or the PR's debt notes such a mismatch) is a blocking finding unless the dev report lists it as `auto-resolved` across ranks per AGENTS.md. Same-rank conflicts must have been escalated to the human.
