@@ -31,6 +31,12 @@ STATE.md, the last ledger entries, the symbol map, then the module cards you nee
 - When done: update the card if the module's public surface changed,
   write the ledger entry, update STATE.md. These are CI gates, not suggestions.
 
+## When sources disagree
+Rank (higher wins): 1 `contracts/` · 2 `.project-os/conditions.json` and `docs/research/protocol.md` · 3 ADRs · 4 `STATE.md` · 5 module cards · 6 the issue · 7 the session prompt.
+- Different ranks: follow the higher one without asking, drop the lower text from every agent brief, and record it on the ledger `debt` line as `conflict: <lower source> said X, <higher source> says Y — followed Y`. Fixing the lower source is a follow-up, not a blocker.
+- Same rank, or the higher source is silent: stop and ask the human.
+- Always stop, whatever the ranks, before a contract change, a force-push, a merge or a deletion.
+
 ## Style
 - Small PRs tied to one issue. Tests first when the task has acceptance criteria.
 - Prefer running single tests over the full suite.

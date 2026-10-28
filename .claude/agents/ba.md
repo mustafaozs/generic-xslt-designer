@@ -14,3 +14,5 @@ Input: a request in prose (chat, Notion note, email).
 5. Produce the issue body using `.github/ISSUE_TEMPLATE/task.md`: title, context (2 sentences), acceptance criteria, impact report, contract change yes/no, closing conditions.
 
 Rules: no implementation detail in the issue; no scenario that cannot fail; if impact says LARGE, add the label `needs-human-approval` in the body.
+
+Never write a research condition (control, cbad, "do not use pos …") into an issue. The only source of the condition is `.project-os/conditions.json`; an issue describes the work, not how it is measured.

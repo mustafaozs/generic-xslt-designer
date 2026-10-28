@@ -10,7 +10,7 @@ Rule: one issue per session. If this session already ran a task, tell the user t
 
 ## 0. Plan: who does what, under which condition
 - Brief: `env -u GITHUB_TOKEN gh issue view <N> --json title,body`. The issue is the brief.
-- Condition: read `.project-os/conditions.json` (`{"#14": "control", ...}`). Listed → that value. Not listed → `cbad`. Not present → `cbad`. Say the condition in your first line.
+- Condition: read `.project-os/conditions.json` (`{"#14": "control", ...}`). Listed → that value. Not listed → `cbad`. Not present → `cbad`. Say the condition in your first line. If the issue text claims a different condition, `conditions.json` wins (AGENTS.md, "When sources disagree"): strip that text from every brief, continue, and note the conflict on the ledger `debt` line. Do not ask.
 - Roles are fixed. The orchestrator (you) never edits code, tests or fixtures; it only spawns agents, runs git/gh/pos bookkeeping and reports.
 
 | step | agent | control | cbad |
@@ -30,13 +30,16 @@ Rule: one issue per session. If this session already ran a task, tell the user t
 5. `/gate`.
 
 ## 2. Record (never edit `.project-os/metrics.jsonl` by hand)
-`pos metrics log --issue "#<N>" --condition <condition> --model <dev model> --stopped-at <rung dev reported: 4 contracts, 5 source…> --tests-ran <n> --tests-full <n> --base origin/main --deviation "<none | what departed from the protocol>"`
+`pos metrics log --issue "#<N>" --condition <condition> --model <dev model> --stopped-at <rung dev reported: 4 contracts, 5 source…> --tests-ran <n> --tests-full <n> --base origin/main --human-asks <times you or an agent asked the human> --auto-resolved <conflicts settled by precedence> --deviation "<none | what departed from the protocol>"`
 - `deviation` is only for departures from the protocol (condition leak, skipped step, model change). Design or template findings go to the ledger `debt` line.
 - `--base origin/main` is required: without it `diff_lines` measures only the last commit.
 - Leave token fields empty. The human pastes `/cost` to the research advisor, who returns one `pos metrics log … --tokens-in … --tokens-out … --cache-read …` command summed over all models.
 
 ## 3. Ship
 Push the branch, open the PR with `Closes #<N>`, the impact report (cbad) or "control: no impact report", and the test command. Report in ≤10 lines: what changed, condition, rung, tests, reviewer findings, what needs the human.
+
+## 4. Policy review reminder
+Count tasks recorded in `.project-os/metrics.jsonl` (condition control or cbad) since the date of the newest `docs/research/evidence/*-policy-review.md` (all of them if none). If the count ≥ `policy_review_every` in `project-os.toml` (default 10), end the report with: "Policy review due: run `/policy-review` in a fresh session."
 
 ## Never
 Merge. Amend or force-push. Add `Co-Authored-By`, session links or "Generated with" to commits or PR bodies. Run a second issue in this session. Write a test that compares output with a fresh render of itself — golden tests compare with committed expected files.
