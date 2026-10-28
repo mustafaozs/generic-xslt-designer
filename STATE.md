@@ -19,7 +19,8 @@ Open questions:
 - efatura-tevkifat withholding block is synthetic (TaxTypeCode 604/50); replace or complement with a real tevkifat sample when one is available.
 - Browser (Chromium XSLTProcessor via Playwright) parity job: not wired; `expected.html` is libxslt only.
 - normalizeHtml collapses whitespace, so white-space:pre-line multi-line text blocks lose newlines in expected.html (found in #14); decide whether the golden comparison should preserve line breaks.
-- gib-rules: checkXslt covers X10-* and EXT-* only; checkTemplate and the REQ/LINES/CUR/WITHHOLD/PRINT/FONT/NUM checks remain; codegen does not call gib-rules yet (`CG-*` binding errors only).
+- gib-rules: checkXslt covers X10-* and EXT-*; checkTemplate covers REQ-FIELDS (partial: ProfileID/InvoiceTypeCode not checked), REQ-EARSIV-NOTE, FONT-SAFE, SIZE-MAX (#12); LINES/CUR/WITHHOLD/PRINT/NUM remain; codegen does not call gib-rules yet (`CG-*` binding errors only).
+- contracts/gib-rules.md (human decision): REQ-FIELDS lists ProfileID/InvoiceTypeCode and REQ-EARSIV-NOTE says `profile.watermark`, but the catalog, default template and #12 use `derived.watermark`; the contract text may be stale and changing it needs human approval.
 
 Stop condition for current task: all four cards pinned, `pos gate` green, catalog + schema validate, golden test harness runs (even with 1 case).
 Progress (task #3, 2026-10-27): xslt-codegen body + golden harness with 1 case (`earsiv-default`); gib-rules body still pending.
@@ -27,6 +28,7 @@ Progress (task #4, 2026-10-27): second fixture + golden `efatura-tevkifat` (cont
 Progress (task #10, 2026-10-27): gib-rules RULES table (17 rules, documentTypes) + contract-drift test; checkTemplate/checkXslt still pending.
 Progress (task #11, 2026-10-27): gib-rules checkXslt (X10-*, EXT-*) + acceptance tests; checkTemplate and REQ/LINES/CUR/WITHHOLD/PRINT/FONT/NUM checks remain.
 Progress (task #15, 2026-10-27): complete synthetic e-Arşiv fixture `earsiv-full` (+ `earsiv-full-nonote`) and goldens (control task).
+Progress (task #12, 2026-10-28): gib-rules checkTemplate (REQ-FIELDS, REQ-EARSIV-NOTE, FONT-SAFE, SIZE-MAX) + acceptance tests; condition cbad, not counted in control window; checkTemplate removed from planned work.
 Progress (task #14, 2026-10-28): escaping and Turkish-character edge-case tests + golden `escape-edge` (control task, window 5 of 5).
 
 Last updated: 2026-10-28
