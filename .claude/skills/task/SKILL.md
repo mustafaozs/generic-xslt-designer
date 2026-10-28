@@ -25,6 +25,7 @@ Rule: one issue per session. If this session already ran a task, tell the user t
 ## 1. Run
 1. impact (cbad only). On `STOP`, post the report on the issue and stop.
 2. dev with the brief (and the impact report in cbad). Model sonnet; opus only if a human approved a contract change.
+   If the dev report contains `STOP: conflict`, post the conflict list on the issue, ask the human, count it in `--human-asks`, and continue only with the human's answer. Count every `auto-resolved` item in `--auto-resolved` and copy it to the ledger debt as a `conflict:` line.
 3. pr-writer.
 4. reviewer on the diff. REQUEST CHANGES → one new dev agent with the findings; a second REQUEST CHANGES stops and asks the human.
 5. `/gate`.

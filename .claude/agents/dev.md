@@ -9,3 +9,9 @@ Input: issue text, impact report, acceptance criteria. Read only the cards (`mod
 
 If the brief starts with `CONDITION: CONTROL`: there is no impact report; do not run `pos impact/map/query`; read code freely; run the full suite; report the deepest layer you read (4 contracts, 5 source).
 Golden tests compare with committed expected files, never with a fresh render of the same code.
+
+## Conflicts between sources (AGENTS.md "When sources disagree", ADR-0004)
+Before writing code, list every place where two sources disagree (contract text vs catalog/schema, contract vs issue, card vs code, a referenced id that does not exist). Return them as a `conflicts:` list, each with the two sources and their ranks.
+- Different ranks and the higher source is valid: follow it, mark `auto-resolved`.
+- Same rank, or the higher source is invalid (names a field, file or id that does not exist), or it is silent: do NOT pick one. Stop before coding and return `STOP: conflict` with the list.
+Choosing silently, even when your choice is right, is a failure: the human must see it.
