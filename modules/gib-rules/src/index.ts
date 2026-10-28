@@ -1,4 +1,7 @@
 // gib-rules — RULES mirrors contracts/gib-rules.md one-to-one (drift is caught by tests/rules.test.ts)
+import type { Template } from "../../template-model/src";
+import { getField, type Catalog } from "../../ubl-catalog/src";
+
 export const MODULE = "gib-rules";
 
 export type Severity = "error" | "warn";
@@ -112,5 +115,43 @@ export function checkXslt(xslt: string): RuleHit[] {
   }
   // url() in <style> text or CSS emitted outside attributes
   for (const m of text.matchAll(/url\(\s*["']?\s*(?:https?:)?\/\/[^)]*\)/gi)) hit("EXT-NONE", `external url(): ${m[0]}`);
+  return hits;
+}
+
+// ---- template-level rules (#12): REQ-FIELDS, REQ-EARSIV-NOTE, FONT-SAFE, SIZE-MAX ----
+const SAFE_FONTS = ["Arial", "Helvetica", "Times New Roman", "Courier New", "Verdana", "Tahoma"];
+const LOGO_MAX_BASE64 = 150 * 1024;
+const REQUIRED_FIELDS = ["doc.id", "doc.uuid", "doc.issueDate", "supplier.name", "supplier.taxId", "customer.name", "customer.taxId"];
+const REQUIRED_TOTAL_ROWS = ["tax", "payable"];
+
+export function checkTemplate(template: Template, catalog: Catalog): RuleHit[] {
+  const sev = new Map(RULES.map(r => [r.id, r.severity]));
+  const hits: RuleHit[] = [];
+  const hit = (rule: string, message: string): void => { hits.push({ rule, severity: sev.get(rule) ?? "error", message }); };
+
+  const blocks = template.sections.flatMap(s => s.blocks) as unknown as Array<{ id: string; type: string; field?: string; rows?: string[]; dataUri?: string }>;
+  const bound = new Set(blocks.flatMap(b => (b.type === "field" && b.field ? [b.field] : [])));
+  const rows = new Set(blocks.filter(b => b.type === "totals").flatMap(b => b.rows ?? []));
+
+  for (const id of REQUIRED_FIELDS) {
+    if (!bound.has(id)) hit("REQ-FIELDS", `required field ${id}${getField(catalog, id) ? "" : " (not in catalog)"} is not bound to any block`);
+  }
+  if (!blocks.some(b => b.type === "lineTable")) hit("REQ-FIELDS", "required lineTable block is missing");
+  for (const row of REQUIRED_TOTAL_ROWS) {
+    if (!rows.has(row)) hit("REQ-FIELDS", `required field totals.${row} is not shown (totals block row "${row}" missing)`);
+  }
+
+  if (template.documentType === "EARSIV" && !bound.has("derived.watermark")) {
+    hit("REQ-EARSIV-NOTE", "EARSIV template has no block bound to derived.watermark");
+  }
+
+  const font = template.theme?.fontFamily;
+  if (font !== undefined && !SAFE_FONTS.includes(font)) hit("FONT-SAFE", `font family "${font}" is not one of the safe families`);
+
+  for (const b of blocks) {
+    if (b.type !== "logo" || typeof b.dataUri !== "string") continue;
+    const payload = b.dataUri.slice(b.dataUri.indexOf(",") + 1);
+    if (payload.length > LOGO_MAX_BASE64) hit("SIZE-MAX", `logo block ${b.id} base64 payload is ${payload.length} bytes, limit ${LOGO_MAX_BASE64}`);
+  }
   return hits;
 }
