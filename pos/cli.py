@@ -62,6 +62,7 @@ def main(argv: list[str] | None = None) -> int:
     ml.add_argument("--tests-full", type=int, default=None); ml.add_argument("--impact-misses", type=int, default=None)
     ml.add_argument("--card-fail-first-push", action="store_true", default=None); ml.add_argument("--ledger-fail-first-push", action="store_true", default=None)
     ml.add_argument("--review-returns", type=int, default=None); ml.add_argument("--gate-seconds", type=float, default=None)
+    ml.add_argument("--deviation", default=None, help="protocol deviation, recorded verbatim (never edit metrics.jsonl by hand)")
     ml.add_argument("--base", default=None)
     mc = m.add_parser("check", help="gate: the issue must have a metrics record"); mc.add_argument("--issue", default=None)
     mr = m.add_parser("report"); mr.add_argument("--json", action="store_true")
@@ -107,7 +108,7 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(gates.metrics_log(root, issue=a.issue, condition=a.condition, model=a.model, tokens_in=a.tokens_in,
                 tokens_out=a.tokens_out, tokens_discovery=a.tokens_discovery, cache_read=a.cache_read, stopped_at=a.stopped_at, tests_selected=a.tests_selected,
                 tests_ran=a.tests_ran, tests_full=a.tests_full, impact_misses=a.impact_misses, card_fail_first_push=a.card_fail_first_push,
-                ledger_fail_first_push=a.ledger_fail_first_push, review_returns=a.review_returns, gate_seconds=a.gate_seconds, base=a.base), ensure_ascii=False)); return 0
+                ledger_fail_first_push=a.ledger_fail_first_push, review_returns=a.review_returns, gate_seconds=a.gate_seconds, base=a.base, deviation=a.deviation), ensure_ascii=False)); return 0
         if a.sub == "check": return _print(*gates.metrics_check(root, a.issue))
         if a.sub == "report": print(gates.metrics_report(root, a.json)); return 0
     return 1
