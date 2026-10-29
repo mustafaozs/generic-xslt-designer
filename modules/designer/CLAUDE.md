@@ -31,4 +31,4 @@ Testler: `modules/designer/tests/state.test.ts` (24), `modules/designer/tests/el
 Son değişiklikler:
 - #17 (designer), bkz. ledger
 
-hash: 4bc65b8d6939ee14
+hash: c5be5fa3a1c04606
