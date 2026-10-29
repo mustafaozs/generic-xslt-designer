@@ -91,7 +91,7 @@ export class XsltDesigner extends HTMLElement {
   updateBlock(blockId: string, patch: Partial<Block>): OpResult { return this.call(s => ops.updateBlock(s, blockId, patch)); }
   bindField(blockId: string, fieldId: string): OpResult { return this.call(s => ops.bindField(s, blockId, fieldId)); }
   bindColumn(blockId: string, columnIndex: number, fieldId: string): OpResult { return this.call(s => ops.bindColumn(s, blockId, columnIndex, fieldId)); }
-  /** Always ok:true; the event fires only when the template actually changed. */
+  /** ok:false ("no template") while the template is undefined; otherwise ok:true, and the event fires only when the template actually changed. */
   undo(): OpResult { return this.step(ops.undo); }
   redo(): OpResult { return this.step(ops.redo); }
 }
