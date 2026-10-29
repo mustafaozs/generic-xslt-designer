@@ -1,6 +1,6 @@
 # STATE
 
-Current goal: H1 — contracts and the three pure modules (template-model, ubl-catalog, xslt-codegen) with gib-rules, e-Fatura/e-Arşiv only. No UI yet. H3 started (#17): designer scaffold exists (pure state ops + xslt-designer element, 20 tests); next: H3 remaining work and contract amendment for the element catalog source.
+Current goal: H1 — contracts and the three pure modules (template-model, ubl-catalog, xslt-codegen) with gib-rules, e-Fatura/e-Arşiv only. No UI yet. H3 started (#17): designer scaffold exists (pure state ops + xslt-designer element, 32 tests); next: H3 remaining work and contract amendment for the element catalog source.
 
 Locked decisions:
 - Output is XSLT 1.0 (ADR-0002). Target engines: .NET XslCompiledTransform and browser XSLTProcessor.
@@ -36,6 +36,6 @@ Progress (task #14, 2026-10-28): escaping and Turkish-character edge-case tests 
 Progress (task #13, 2026-10-28): efatura-usd fixture + case-specific golden only (condition cbad, not counted in control window); scope reduced by human decision after dev STOP: conflict (AC4 → #28, tryEquivalent → #27); no codegen/contract change.
 Progress (task #16, 2026-10-29): in-words-tr boundary matrix test (`inwords-matrix.test.ts`, 15 tests, 12 synthetic fixtures); condition cbad, not counted in control window; no codegen or contract change; uncommitted at write time.
 
-Progress (task #17, 2026-10-29): designer contract v1 (human-approved decisions) + pure state ops + xslt-designer element + card; 20 tests; condition cbad, not counted in control window; H3 started.
+Progress (task #17, 2026-10-29): designer contract v1 (human-approved decisions) + pure state ops + xslt-designer element + card; 32 tests; condition cbad, not counted in control window; H3 started.
 
 Last updated: 2026-10-29
