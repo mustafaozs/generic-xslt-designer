@@ -12,3 +12,10 @@
 {"t": 1793209515, "kind": "query", "arg": "SELECT name, signature FROM symbols WHERE file LIKE 'modules/gib-rules/%' AND exported=1", "size": 7}
 {"t": 1793209522, "kind": "query", "arg": "SELECT name, signature FROM symbols WHERE file LIKE 'modules/gib-rules/%' AND exported=1", "size": 8}
 {"t": 1793209626, "kind": "impact", "arg": ".project-os/metrics.jsonl STATE.md docs/ledger/2026-10.md modules/gib-rules/CLAUDE.md modules/gib-rules/src/index.ts modules/gib-rules/tests/check-template.test.ts", "size": 8}
+{"t": 1793211238, "kind": "impact", "arg": "contracts/gib-rules.md modules/gib-rules", "size": 1}
+{"t": 1793211933, "kind": "map", "arg": "", "size": 1956}
+{"t": 1793211936, "kind": "impact", "arg": "defaultTemplate generate normalizeHtml fixtures/ubl modules/xslt-codegen/tests", "size": 14}
+{"t": 1793213051, "kind": "map", "arg": "", "size": 1956}
+{"t": 1793213124, "kind": "impact", "arg": "STATE.md docs/ledger/2026-10.md fixtures/ubl/efatura-usd.xml modules/xslt-codegen/tests/efatura-usd.test.ts modules/xslt-codegen/tests/golden/efatura-usd/case.json modules/xslt-codegen/tests/golden/efatura-usd/expected.html modules/xslt-codegen/tests/golden/efatura-usd/expected.xslt modules/xslt-codegen/tests/golden/efatura-usd/template.json", "size": 5}
+{"t": 1793213156, "kind": "impact", "arg": "STATE.md docs/ledger/2026-10.md fixtures/ubl/efatura-usd.xml modules/xslt-codegen/tests/efatura-usd.test.ts modules/xslt-codegen/tests/golden/efatura-usd/case.json modules/xslt-codegen/tests/golden/efatura-usd/expected.html modules/xslt-codegen/tests/golden/efatura-usd/expected.xslt modules/xslt-codegen/tests/golden/efatura-usd/template.json", "size": 5}
+{"t": 1793288875, "kind": "impact", "arg": "in-words-tr xslt-codegen fixtures/ubl/inwords-matrix/", "size": 8}

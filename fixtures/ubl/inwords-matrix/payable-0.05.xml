@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Invoice xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+	<cbc:UBLVersionID>2.1</cbc:UBLVersionID>
+	<cbc:CustomizationID>TR1.2</cbc:CustomizationID>
+	<cbc:ProfileID>TICARIFATURA</cbc:ProfileID>
+	<cbc:ID>ORN-0-05</cbc:ID>
+	<cbc:CopyIndicator>false</cbc:CopyIndicator>
+	<cbc:UUID>00000000-0000-4000-8000-000000000016</cbc:UUID>
+	<cbc:IssueDate>2026-08-15</cbc:IssueDate>
+	<cbc:InvoiceTypeCode>SATIS</cbc:InvoiceTypeCode>
+	<cbc:DocumentCurrencyCode>TRY</cbc:DocumentCurrencyCode>
+	<cbc:LineCountNumeric>1</cbc:LineCountNumeric>
+	<cac:AccountingSupplierParty><cac:Party><cac:PartyName><cbc:Name>Örnek Satıcı A.Ş.</cbc:Name></cac:PartyName></cac:Party></cac:AccountingSupplierParty>
+	<cac:AccountingCustomerParty><cac:Party><cac:PartyName><cbc:Name>Örnek Alıcı Ltd.</cbc:Name></cac:PartyName></cac:Party></cac:AccountingCustomerParty>
+	<cac:LegalMonetaryTotal>
+		<cbc:LineExtensionAmount currencyID="TRY">0.05</cbc:LineExtensionAmount>
+		<cbc:TaxExclusiveAmount currencyID="TRY">0.05</cbc:TaxExclusiveAmount>
+		<cbc:TaxInclusiveAmount currencyID="TRY">0.05</cbc:TaxInclusiveAmount>
+		<cbc:PayableAmount currencyID="TRY">0.05</cbc:PayableAmount>
+	</cac:LegalMonetaryTotal>
+	<cac:InvoiceLine>
+		<cbc:ID>1</cbc:ID>
+		<cbc:InvoicedQuantity unitCode="C62">1</cbc:InvoicedQuantity>
+		<cbc:LineExtensionAmount currencyID="TRY">0.05</cbc:LineExtensionAmount>
+		<cac:Item><cbc:Name>Ürün 1</cbc:Name></cac:Item>
+		<cac:Price><cbc:PriceAmount currencyID="TRY">0.05</cbc:PriceAmount></cac:Price>
+	</cac:InvoiceLine>
+</Invoice>

@@ -8,7 +8,7 @@ Locked decisions:
 - Designer will be a framework-free web component (H3); OverEGov integrates via Angular lazy module + one controller (H4).
 - Languages: TypeScript for modules; pos kit in Python.
 - Golden reference engine is libxslt via `lxml` (contracts/xslt-codegen.md, 2026-10-27); .NET parity is checked in H4, browser parity is a CI job (pending).
-- Number-to-words (Yalnız …) is a recursive named template `in-words-tr` in the generated XSLT (task #3, 2026-10-27); verified identical on libxslt and .NET.
+- Number-to-words (Yalnız: …) is a recursive named template `in-words-tr` in the generated XSLT (task #3, 2026-10-27); verified identical on libxslt and .NET.
 
 Research protocol (docs/research/protocol.md): Control window = #4 plus the next four task issues worked (protocol v1.4 §2d, by order not number); then cbad. Live list: kit docs/research/evidence/control-window.md.
 Control window progress: 5 of 5 (#4, #10, #11, #15, #14). Next task issues worked count toward it in order.
@@ -21,6 +21,7 @@ Open questions:
 - normalizeHtml collapses whitespace, so white-space:pre-line multi-line text blocks lose newlines in expected.html (found in #14); decide whether the golden comparison should preserve line breaks.
 - gib-rules: checkXslt covers X10-* and EXT-*; checkTemplate covers REQ-FIELDS (partial: ProfileID/InvoiceTypeCode not checked), REQ-EARSIV-NOTE, FONT-SAFE, SIZE-MAX (#12); LINES/CUR/WITHHOLD/PRINT/NUM remain; codegen does not call gib-rules yet (`CG-*` binding errors only).
 - contracts/gib-rules.md (human decision): REQ-FIELDS lists ProfileID/InvoiceTypeCode and REQ-EARSIV-NOTE says `profile.watermark`, but the catalog, default template and #12 use `derived.watermark`; the contract text may be stale and changing it needs human approval.
+- in-words-tr (#16): 0.00 renders "Sıfır TL" without kuruş part; card now documents it, but the spec is unconfirmed (test pins current output); human to decide. Yalnız prefix is "Yalnız: " in card and code (gap closed).
 - efatura-usd golden (#13, scope reduced by human decision after dev STOP): does not exercise TRY-equivalent or in-words, the real USD gaps; `money` appends raw @currencyID for non-TRY; number-tr drops trailing zeros of the rate. Follow-ups: #27 (tryEquivalent row/enum), #28 (currency-aware in-words). totals.tryTax not bound (needs second TaxTotal in fixture).
 
 Stop condition for current task: all four cards pinned, `pos gate` green, catalog + schema validate, golden test harness runs (even with 1 case).
@@ -32,5 +33,6 @@ Progress (task #15, 2026-10-27): complete synthetic e-Arşiv fixture `earsiv-ful
 Progress (task #12, 2026-10-28): gib-rules checkTemplate (REQ-FIELDS, REQ-EARSIV-NOTE, FONT-SAFE, SIZE-MAX) + acceptance tests; condition cbad, not counted in control window; checkTemplate removed from planned work.
 Progress (task #14, 2026-10-28): escaping and Turkish-character edge-case tests + golden `escape-edge` (control task, window 5 of 5).
 Progress (task #13, 2026-10-28): efatura-usd fixture + case-specific golden only (condition cbad, not counted in control window); scope reduced by human decision after dev STOP: conflict (AC4 → #28, tryEquivalent → #27); no codegen/contract change.
+Progress (task #16, 2026-10-29): in-words-tr boundary matrix test (`inwords-matrix.test.ts`, 15 tests, 12 synthetic fixtures); condition cbad, not counted in control window; no codegen or contract change; uncommitted at write time.
 
-Last updated: 2026-10-28
+Last updated: 2026-10-29
