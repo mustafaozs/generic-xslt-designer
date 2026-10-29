@@ -1,6 +1,6 @@
 # STATE
 
-Current goal: H1 — contracts and the three pure modules (template-model, ubl-catalog, xslt-codegen) with gib-rules, e-Fatura/e-Arşiv only. No UI yet.
+Current goal: H1 — contracts and the three pure modules (template-model, ubl-catalog, xslt-codegen) with gib-rules, e-Fatura/e-Arşiv only. No UI yet. H3 started (#17): designer scaffold exists (pure state ops + xslt-designer element, 20 tests); next: H3 remaining work and contract amendment for the element catalog source.
 
 Locked decisions:
 - Output is XSLT 1.0 (ADR-0002). Target engines: .NET XslCompiledTransform and browser XSLTProcessor.
@@ -15,6 +15,7 @@ Research protocol (docs/research/protocol.md): Control window = #4 plus the next
 Control window progress: 5 of 5 (#4, #10, #11, #15, #14). Next task issues worked count toward it in order.
 
 Open questions:
+- Designer element catalog source: contracts/designer.md does not specify the `loadCatalog()` default or the settable `catalog` property (implemented in #17). Needs contract amendment, human approval.
 - Which 3 sample UBL files represent the parity suite. Have three fixtures: earsiv-full (synthetic e-Arşiv, 4 lines, totals, watermark, note; #15), earsiv-satis-6gen (no InvoiceLine/LegalMonetaryTotal, ID/UUID/IssueDate commented out; golden html does not exercise lines, totals or in-words) and efatura-tevkifat (synthetic, 13 lines, KDV %20/%10, line allowance, withholding, totals; golden html exercises in-words).
 - Stock defaultTemplate("EARSIV") has no note (doc.note) block; #15 golden adds one via a test-local notes section. Decide whether the stock default should carry it.
 - efatura-tevkifat withholding block is synthetic (TaxTypeCode 604/50); replace or complement with a real tevkifat sample when one is available.
@@ -34,5 +35,7 @@ Progress (task #12, 2026-10-28): gib-rules checkTemplate (REQ-FIELDS, REQ-EARSIV
 Progress (task #14, 2026-10-28): escaping and Turkish-character edge-case tests + golden `escape-edge` (control task, window 5 of 5).
 Progress (task #13, 2026-10-28): efatura-usd fixture + case-specific golden only (condition cbad, not counted in control window); scope reduced by human decision after dev STOP: conflict (AC4 → #28, tryEquivalent → #27); no codegen/contract change.
 Progress (task #16, 2026-10-29): in-words-tr boundary matrix test (`inwords-matrix.test.ts`, 15 tests, 12 synthetic fixtures); condition cbad, not counted in control window; no codegen or contract change; uncommitted at write time.
+
+Progress (task #17, 2026-10-29): designer contract v1 (human-approved decisions) + pure state ops + xslt-designer element + card; 20 tests; condition cbad, not counted in control window; H3 started.
 
 Last updated: 2026-10-29
