@@ -1,0 +1,165 @@
+import { validateTemplate } from "../../template-model/src";
+import type { Template } from "../../template-model/src";
+import type { Catalog } from "../../ubl-catalog/src";
+import { fieldsFor } from "../../ubl-catalog/src";
+import type { Block } from "../../template-model/src/types.generated";
+
+export type { Block };
+
+export interface EditorState { readonly template: Template; readonly catalog: Catalog }
+export type OpResult = { ok: true; state: EditorState } | { ok: false; errors: string[] };
+
+// History is internal: kept off the state object so the public shape stays {template, catalog}.
+interface History { past: Template[]; future: Template[] }
+const histories = new WeakMap<object, History>();
+
+const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
+const fail = (...errors: string[]): OpResult => ({ ok: false, errors });
+const msg = (e: unknown) => (e instanceof Error ? e.message : String(e));
+const isObj = (v: unknown): v is Record<string, any> => typeof v === "object" && v !== null && !Array.isArray(v);
+
+function make(template: Template, catalog: Catalog, h: History): EditorState {
+  const s: EditorState = Object.freeze({ template, catalog });
+  histories.set(s, h);
+  return s;
+}
+
+export function createState(template: Template, catalog: Catalog): EditorState {
+  return make(clone(template), catalog, { past: [], future: [] });
+}
+
+function histOf(s: EditorState): History {
+  return histories.get(s) ?? { past: [], future: [] };
+}
+
+function validState(s: unknown): s is EditorState {
+  return isObj(s) && isObj(s.template) && isObj(s.catalog) && Array.isArray((s.catalog as any).fields);
+}
+
+/** Run a mutation on a deep copy of the template; validate; commit to history. Never throws. */
+function edit(s: EditorState, mutate: (t: any) => string[] | void): OpResult {
+  try {
+    if (!validState(s)) return fail("invalid editor state");
+    const draft = clone(s.template) as any;
+    const errs = mutate(draft);
+    if (errs && errs.length) return fail(...errs);
+    const v = validateTemplate(draft);
+    if (!v.ok) return fail(...v.errors);
+    const ids = draft.sections.flatMap((sec: any) => sec.blocks.map((b: any) => b.id));
+    const dup = ids.find((id: string, i: number) => ids.indexOf(id) !== i);
+    if (dup !== undefined) return fail(`duplicate block id "${dup}"`);
+    const h = histOf(s);
+    return { ok: true, state: make(v.value, s.catalog, { past: [...h.past, s.template], future: [] }) };
+  } catch (e) {
+    return fail(msg(e));
+  }
+}
+
+function locate(t: any, blockId: unknown): { section: any; index: number; block: any } | undefined {
+  for (const section of t.sections) {
+    const index = section.blocks.findIndex((b: any) => b.id === blockId);
+    if (index >= 0) return { section, index, block: section.blocks[index] };
+  }
+  return undefined;
+}
+const findSection = (t: any, id: unknown) => t.sections.find((s: any) => s.id === id);
+
+export function addBlock(s: EditorState, sectionId: string, block: Block, index?: number): OpResult {
+  return edit(s, t => {
+    const sec = findSection(t, sectionId);
+    if (!sec) return [`unknown section "${String(sectionId)}"`];
+    if (!isObj(block)) return ["block must be an object"];
+    const at = index === undefined ? sec.blocks.length : index;
+    if (!Number.isInteger(at) || at < 0 || at > sec.blocks.length) return [`index ${String(index)} out of range`];
+    sec.blocks.splice(at, 0, clone(block));
+  });
+}
+
+export function removeBlock(s: EditorState, blockId: string): OpResult {
+  return edit(s, t => {
+    const loc = locate(t, blockId);
+    if (!loc) return [`unknown block "${String(blockId)}"`];
+    loc.section.blocks.splice(loc.index, 1);
+  });
+}
+
+export function moveBlock(s: EditorState, blockId: string, toSectionId: string, toIndex: number): OpResult {
+  return edit(s, t => {
+    const loc = locate(t, blockId);
+    if (!loc) return [`unknown block "${String(blockId)}"`];
+    const to = findSection(t, toSectionId);
+    if (!to) return [`unknown section "${String(toSectionId)}"`];
+    loc.section.blocks.splice(loc.index, 1); // toIndex is relative to the target after removal
+    if (!Number.isInteger(toIndex) || toIndex < 0 || toIndex > to.blocks.length) return [`index ${String(toIndex)} out of range`];
+    to.blocks.splice(toIndex, 0, loc.block);
+  });
+}
+
+const colFields = (b: any): unknown[] | undefined => (Array.isArray(b?.columns) ? b.columns.map((c: any) => c?.field) : undefined);
+const sameList = (a: unknown[] | undefined, b: unknown[] | undefined) =>
+  a === undefined || b === undefined ? a === b : a.length === b.length && a.every((x, i) => x === b[i]);
+
+export function updateBlock(s: EditorState, blockId: string, patch: Partial<Block>): OpResult {
+  return edit(s, t => {
+    const loc = locate(t, blockId);
+    if (!loc) return [`unknown block "${String(blockId)}"`];
+    if (!isObj(patch)) return ["patch must be an object"];
+    const cur = loc.block;
+    const p = patch as Record<string, any>;
+    if ("field" in p && p.field !== cur.field) return ["updateBlock cannot change a field binding; use bindField"];
+    if ("type" in p && p.type !== cur.type && (cur.type === "field" || cur.type === "lineTable" || p.type === "field" || p.type === "lineTable"))
+      return ["updateBlock cannot change binding block types"];
+    if ("columns" in p) {
+      if (cur.type !== "lineTable" || !sameList(colFields(p), colFields(cur)))
+        return ["updateBlock cannot change column bindings; use bindColumn"];
+    }
+    loc.section.blocks[loc.index] = { ...cur, ...clone(p) };
+  });
+}
+
+export function bindField(s: EditorState, blockId: string, fieldId: string): OpResult {
+  return edit(s, t => {
+    const loc = locate(t, blockId);
+    if (!loc) return [`unknown block "${String(blockId)}"`];
+    if (loc.block.type !== "field") return [`block "${blockId}" is not a field block`];
+    const allowed = fieldsFor(s.catalog, t.documentType, "document");
+    if (typeof fieldId !== "string" || !allowed.some(f => f.id === fieldId)) return [`"${String(fieldId)}" is not a document-scope catalog id`];
+    loc.block.field = fieldId;
+  });
+}
+
+export function bindColumn(s: EditorState, blockId: string, columnIndex: number, fieldId: string): OpResult {
+  return edit(s, t => {
+    const loc = locate(t, blockId);
+    if (!loc) return [`unknown block "${String(blockId)}"`];
+    if (loc.block.type !== "lineTable") return [`block "${blockId}" is not a lineTable block`];
+    const cols = loc.block.columns;
+    if (!Array.isArray(cols) || !Number.isInteger(columnIndex) || columnIndex < 0 || columnIndex >= cols.length)
+      return [`column index ${String(columnIndex)} out of range`];
+    const allowed = fieldsFor(s.catalog, t.documentType, "line");
+    if (typeof fieldId !== "string" || !allowed.some(f => f.id === fieldId)) return [`"${String(fieldId)}" is not a line-scope catalog id`];
+    cols[columnIndex].field = fieldId;
+  });
+}
+
+export function undo(s: EditorState): EditorState {
+  try {
+    const h = histOf(s);
+    if (!validState(s) || h.past.length === 0) return s;
+    const prev = h.past[h.past.length - 1];
+    return make(prev, s.catalog, { past: h.past.slice(0, -1), future: [s.template, ...h.future] });
+  } catch {
+    return s;
+  }
+}
+
+export function redo(s: EditorState): EditorState {
+  try {
+    const h = histOf(s);
+    if (!validState(s) || h.future.length === 0) return s;
+    const [next, ...rest] = h.future;
+    return make(next, s.catalog, { past: [...h.past, s.template], future: rest });
+  } catch {
+    return s;
+  }
+}
