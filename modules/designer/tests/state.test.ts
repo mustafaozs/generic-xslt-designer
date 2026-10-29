@@ -1,6 +1,8 @@
 import { defaultTemplate, validateTemplate } from "../../template-model/src";
 import type { Template } from "../../template-model/src";
 import { loadCatalog, fieldsFor } from "../../ubl-catalog/src";
+import { templateBindingErrors } from "../src/internal";
+import * as publicApi from "../src";
 import {
   createState, addBlock, removeBlock, moveBlock, updateBlock, bindField, bindColumn, undo, redo,
   type EditorState, type OpResult
@@ -272,5 +274,33 @@ describe("history is immune to mutation and odd input", () => {
     expect(addBlock(mk(), "header", circ).ok).toBe(false);
     const fn: any = { id: "fn-a", type: "text", text: "x", f: () => 1 };
     expect(() => addBlock(mk(), "header", fn)).not.toThrow();
+  });
+});
+
+describe("non-binding blocks must not carry a field", () => {
+  test("addBlock rejects text+field, accepts plain text", () => {
+    const s = mk();
+    expect(addBlock(s, "header", { id: "txt-x", type: "text", text: "a", field: "supplier.name" } as any).ok).toBe(false);
+    expect(addBlock(s, "header", { id: "tbl-x", type: "lineTable", field: "line.name", columns: [{ field: "line.name", label: "x" }] } as any).ok).toBe(false);
+    ok(addBlock(s, "header", { id: "txt-x", type: "text", text: "a" } as any));
+  });
+
+  test("updateBlock rejects a patch adding field to a text block, accepts normal text edits", () => {
+    const s1 = ok(addBlock(mk(), "header", note));
+    const before = snap(s1);
+    expect(updateBlock(s1, "note-a", { field: "x" } as any).ok).toBe(false);
+    expect(updateBlock(s1, "note-a", { field: "supplier.name" } as any).ok).toBe(false);
+    expect(snap(s1)).toBe(before);
+    ok(updateBlock(s1, "note-a", { text: "baska" } as any));
+  });
+});
+
+describe("internal helpers stay internal", () => {
+  test("templateBindingErrors is not exported from index", () => {
+    expect((publicApi as any).templateBindingErrors).toBeUndefined();
+    expect(templateBindingErrors(defaultTemplate("EFATURA"), catalog)).toEqual([]);
+    const bad: any = defaultTemplate("EFATURA");
+    bad.sections[0].blocks[2].field = "//cbc:ID";
+    expect(templateBindingErrors(bad, catalog).length).toBe(1);
   });
 });

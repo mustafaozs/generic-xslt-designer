@@ -113,8 +113,37 @@ test("document-type attribute change re-seeds an untouched element", () => {
   expect(el.template.documentType).toBe("EARSIV");
 });
 
-test("undo/redo and getters never throw", () => {
+test("template is undefined until document-type or template is set; ops then reject", () => {
   const el = make();
-  expect(() => { el.undo(); el.redo(); el.template; el.catalog; }).not.toThrow();
-  expect(el.undo().ok).toBe(true);
+  expect(el.template).toBeUndefined();
+  expect(el.addBlock("header", note).ok).toBe(false);
+  expect(el.undo().ok).toBe(false);
+  expect(() => { el.redo(); el.catalog; }).not.toThrow();
+  expect(el.template).toBeUndefined();
+  el.setAttribute("document-type", "EARSIV");
+  expect(el.template.documentType).toBe("EARSIV");
+  const el2 = make();
+  el2.template = defaultTemplate("EFATURA");
+  expect(el2.template.documentType).toBe("EFATURA");
+});
+
+test("catalog defaults to loadCatalog, is settable, keeps template and resets history", () => {
+  const el = make("EFATURA");
+  expect(el.catalog.fields.length).toBeGreaterThan(0);
+  el.addBlock("header", note);
+  const small = { ...el.catalog, fields: el.catalog.fields.filter((f: any) => f.id === "supplier.name" || f.scope === "line") };
+  el.catalog = small;
+  expect(el.catalog).toBe(small);
+  expect(el.template.sections[0].blocks.some((b: any) => b.id === "note-a")).toBe(true);
+  el.undo();
+  expect(el.template.sections[0].blocks.some((b: any) => b.id === "note-a")).toBe(true);
+  expect(el.bindField("s-name", "supplier.name").ok).toBe(true);
+  expect(el.bindField("s-name", "doc.id").ok).toBe(false);
+});
+
+test("non-JSON-serializable block is rejected", () => {
+  const el = make("EFATURA");
+  const circ: any = { id: "circ-a", type: "text", text: "x" };
+  circ.me = circ;
+  expect(el.addBlock("header", circ).ok).toBe(false);
 });
