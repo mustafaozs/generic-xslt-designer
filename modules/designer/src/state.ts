@@ -2,9 +2,7 @@ import { validateTemplate } from "../../template-model/src";
 import type { Template } from "../../template-model/src";
 import type { Catalog } from "../../ubl-catalog/src";
 import { fieldsFor } from "../../ubl-catalog/src";
-import type { Block } from "../../template-model/src/types.generated";
-
-export type { Block };
+export type Block = Template["sections"][number]["blocks"][number];
 
 export interface EditorState { readonly template: Template; readonly catalog: Catalog }
 export type OpResult = { ok: true; state: EditorState } | { ok: false; errors: string[] };
@@ -13,7 +11,16 @@ export type OpResult = { ok: true; state: EditorState } | { ok: false; errors: s
 interface History { past: Template[]; future: Template[] }
 const histories = new WeakMap<object, History>();
 
-const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
+const clone = <T>(v: T): T => structuredClone(v); // throws on circular/odd input; callers catch
+
+function deepFreeze<T>(o: T, seen = new WeakSet<object>()): T {
+  if (o && typeof o === "object" && !seen.has(o as object)) {
+    seen.add(o as object);
+    Object.values(o as object).forEach(v => deepFreeze(v, seen));
+    Object.freeze(o);
+  }
+  return o;
+}
 const fail = (...errors: string[]): OpResult => ({ ok: false, errors });
 const msg = (e: unknown) => (e instanceof Error ? e.message : String(e));
 const isObj = (v: unknown): v is Record<string, any> => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -25,7 +32,9 @@ function make(template: Template, catalog: Catalog, h: History): EditorState {
 }
 
 export function createState(template: Template, catalog: Catalog): EditorState {
-  return make(clone(template), catalog, { past: [], future: [] });
+  let t: Template = template;
+  try { t = deepFreeze(clone(template)); } catch { /* odd input: keep as is; every op will then reject via its own try/catch */ }
+  return make(t, catalog, { past: [], future: [] });
 }
 
 function histOf(s: EditorState): History {
@@ -36,6 +45,22 @@ function validState(s: unknown): s is EditorState {
   return isObj(s) && isObj(s.template) && isObj(s.catalog) && Array.isArray((s.catalog as any).fields);
 }
 
+/** Bindings of a caller-supplied block must be catalog ids of the right scope. Only this block is checked. */
+function bindingErrors(block: any, s: EditorState, documentType: "EFATURA" | "EARSIV"): string[] {
+  const errs: string[] = [];
+  const doc = () => fieldsFor(s.catalog, documentType, "document");
+  const line = () => fieldsFor(s.catalog, documentType, "line");
+  if (block.type === "field" && !doc().some(f => f.id === block.field))
+    errs.push(`"${String(block.field)}" is not a document-scope catalog id`);
+  if (block.type === "lineTable" && Array.isArray(block.columns)) {
+    const allowed = line();
+    block.columns.forEach((c: any, i: number) => {
+      if (!allowed.some(f => f.id === c?.field)) errs.push(`column ${i}: "${String(c?.field)}" is not a line-scope catalog id`);
+    });
+  }
+  return errs;
+}
+
 /** Run a mutation on a deep copy of the template; validate; commit to history. Never throws. */
 function edit(s: EditorState, mutate: (t: any) => string[] | void): OpResult {
   try {
@@ -43,13 +68,15 @@ function edit(s: EditorState, mutate: (t: any) => string[] | void): OpResult {
     const draft = clone(s.template) as any;
     const errs = mutate(draft);
     if (errs && errs.length) return fail(...errs);
-    const v = validateTemplate(draft);
+    let json: unknown;
+    try { json = JSON.parse(JSON.stringify(draft)); } catch { return fail("template must be JSON-serializable"); }
+    const v = validateTemplate(json);
     if (!v.ok) return fail(...v.errors);
-    const ids = draft.sections.flatMap((sec: any) => sec.blocks.map((b: any) => b.id));
+    const ids = v.value.sections.flatMap((sec) => sec.blocks.map((b: any) => b.id));
     const dup = ids.find((id: string, i: number) => ids.indexOf(id) !== i);
     if (dup !== undefined) return fail(`duplicate block id "${dup}"`);
     const h = histOf(s);
-    return { ok: true, state: make(v.value, s.catalog, { past: [...h.past, s.template], future: [] }) };
+    return { ok: true, state: make(deepFreeze(v.value), s.catalog, { past: [...h.past, s.template], future: [] }) };
   } catch (e) {
     return fail(msg(e));
   }
@@ -71,6 +98,8 @@ export function addBlock(s: EditorState, sectionId: string, block: Block, index?
     if (!isObj(block)) return ["block must be an object"];
     const at = index === undefined ? sec.blocks.length : index;
     if (!Number.isInteger(at) || at < 0 || at > sec.blocks.length) return [`index ${String(index)} out of range`];
+    const be = bindingErrors(block, s, t.documentType);
+    if (be.length) return be;
     sec.blocks.splice(at, 0, clone(block));
   });
 }
@@ -162,4 +191,10 @@ export function redo(s: EditorState): EditorState {
   } catch {
     return s;
   }
+}
+
+/** Binding errors of every block in a template (used by the element's `template` setter; not part of index.ts). */
+export function templateBindingErrors(template: Template, catalog: Catalog): string[] {
+  const s = { template, catalog } as EditorState;
+  return template.sections.flatMap(sec => sec.blocks.flatMap(b => bindingErrors(b, s, template.documentType)));
 }
