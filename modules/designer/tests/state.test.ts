@@ -208,3 +208,69 @@ describe("undo / redo", () => {
     expect(snap(undo(s1))).toBe(snap(mk()));
   });
 });
+
+describe("addBlock validates the bindings of the added block", () => {
+  const field = (id: string, f: string) => ({ id, type: "field", field: f }) as any;
+  const table = (cols: string[]) =>
+    ({ id: "tbl-x", type: "lineTable", columns: cols.map(c => ({ field: c, label: "x" })) }) as any;
+
+  test("rejects raw xpath, unknown id and line-scope id in a field block", () => {
+    const s = mk();
+    const before = snap(s);
+    for (const f of ["//cbc:ID", "no.such.field", "line.name", ""]) {
+      expect(addBlock(s, "header", field("fld-x", f)).ok, f).toBe(false);
+    }
+    expect(snap(s)).toBe(before);
+  });
+
+  test("rejects raw xpath, unknown id and document-scope id in a lineTable column", () => {
+    const s = mk();
+    const before = snap(s);
+    for (const f of ["//cbc:ID", "no.such.field", "supplier.name"]) {
+      expect(addBlock(s, "lines", table(["line.name", f])).ok, f).toBe(false);
+    }
+    expect(snap(s)).toBe(before);
+  });
+
+  test("accepts valid bindings", () => {
+    const s = mk();
+    ok(addBlock(s, "header", field("fld-x", "supplier.name")));
+    ok(addBlock(s, "lines", table(["line.name", "line.quantity"])));
+  });
+
+  test("pre-existing default-template bindings do not block unrelated edits", () => {
+    for (const dt of ["EFATURA", "EARSIV"] as const) ok(addBlock(mk(dt), "header", note));
+  });
+});
+
+describe("history is immune to mutation and odd input", () => {
+  test("state templates are frozen; mutation attempts cannot corrupt undo", () => {
+    const s1 = ok(addBlock(mk(), "header", note));
+    expect(Object.isFrozen(s1.template)).toBe(true);
+    expect(() => { (s1.template.sections[0]!.blocks as any).push({}); }).toThrow();
+    const u = undo(s1);
+    expect(Object.isFrozen(u.template)).toBe(true);
+    expect(snap(redo(u))).toBe(snap(s1));
+  });
+
+  test("caller mutation of the original template does not affect the state", () => {
+    const t: any = defaultTemplate("EFATURA");
+    const s = createState(t, catalog);
+    t.sections[0].blocks.length = 0;
+    expect(s.template.sections[0]!.blocks.length).toBeGreaterThan(0);
+  });
+
+  test("createState and ops do not throw on circular or odd input", () => {
+    const t: any = defaultTemplate("EFATURA");
+    t.self = t;
+    let s!: EditorState;
+    expect(() => { s = createState(t, catalog); }).not.toThrow();
+    expect(addBlock(s, "header", note).ok).toBe(false);
+    expect(() => undo(s)).not.toThrow();
+    const circ: any = { id: "circ-a", type: "text", text: "x" };
+    circ.me = circ;
+    expect(addBlock(mk(), "header", circ).ok).toBe(false);
+    const fn: any = { id: "fn-a", type: "text", text: "x", f: () => 1 };
+    expect(() => addBlock(mk(), "header", fn)).not.toThrow();
+  });
+});

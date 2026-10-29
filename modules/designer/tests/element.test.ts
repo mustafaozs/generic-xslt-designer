@@ -73,3 +73,48 @@ test("template property setter accepts valid and ignores invalid", () => {
   expect(el.template.documentType).toBe("EARSIV");
   expect(el.addBlock("header", note).ok).toBe(true);
 });
+
+test("valid template set dispatches template-change; invalid or mis-bound is ignored", () => {
+  const el = make("EFATURA");
+  const events: CustomEvent[] = [];
+  el.addEventListener("template-change", (e: Event) => events.push(e as CustomEvent));
+  el.template = defaultTemplate("EARSIV");
+  expect(events).toHaveLength(1);
+  expect(validateTemplate(events[0].detail).ok).toBe(true);
+  el.template = { bogus: true };
+  const bad: any = defaultTemplate("EFATURA");
+  bad.sections[0].blocks[2].field = "//cbc:ID";
+  el.template = bad;
+  expect(events).toHaveLength(1);
+  expect(el.template.documentType).toBe("EARSIV");
+});
+
+test("addBlock with raw xpath binding is rejected by the element", () => {
+  const el = make("EFATURA");
+  expect(el.addBlock("header", { id: "fld-x", type: "field", field: "//cbc:ID" }).ok).toBe(false);
+});
+
+test("template mutation by the caller cannot corrupt history", () => {
+  const el = make("EFATURA");
+  el.addBlock("header", note);
+  expect(() => { el.template.sections[0].blocks.length = 0; }).toThrow();
+  el.undo();
+  el.redo();
+  expect(el.template.sections[0].blocks.some((b: any) => b.id === "note-a")).toBe(true);
+});
+
+test("document-type attribute change re-seeds an untouched element", () => {
+  const el = make("EFATURA");
+  expect(el.template.documentType).toBe("EFATURA");
+  el.setAttribute("document-type", "EARSIV");
+  expect(el.template.documentType).toBe("EARSIV");
+  el.addBlock("header", note);
+  el.setAttribute("document-type", "EFATURA");
+  expect(el.template.documentType).toBe("EARSIV");
+});
+
+test("undo/redo and getters never throw", () => {
+  const el = make();
+  expect(() => { el.undo(); el.redo(); el.template; el.catalog; }).not.toThrow();
+  expect(el.undo().ok).toBe(true);
+});
