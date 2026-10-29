@@ -30,11 +30,15 @@ export function redo(s: EditorState): EditorState;   // no-op when nothing to re
 - `updateBlock` rejects with `ok: false` any patch that changes a field binding (a `field` block's `field`, or a lineTable column's `field`); binding is done only via `bindField`/`bindColumn`.
 - Field pickers use `fieldsFor` directly (no wrapper): lineTable columns offer only `fieldsFor(catalog, documentType, "line")`.
 - After three ops, undo twice then redo once yields the template of the second op.
+- A template that cannot be serialized to JSON is rejected with `ok: false` (state unchanged, nothing throws).
+- `addBlock`/`updateBlock` reject with `ok: false` a block of a non-binding type (e.g. `text`) carrying a `field` property.
+- `templateBindingErrors` is internal, not part of the public surface.
 
 ## Custom element `xslt-designer`
 - Registered with `customElements.define("xslt-designer", …)`; framework-free; works under happy-dom in tests.
 - Attribute `document-type` (`EFATURA` | `EARSIV`): seeds `defaultTemplate(documentType)` when no template is set.
-- Property `template: Template` (get/set).
+- Property `template: Template | undefined` (get/set): `undefined` until `document-type` or `template` has been set.
+- Property `catalog: Catalog` (get/set): defaults to `loadCatalog()`, can be supplied from outside; setting it keeps the template and resets the undo/redo history.
 - Methods mirror the pure ops: `addBlock`, `removeBlock`, `moveBlock`, `updateBlock`, `bindField`, `bindColumn`, `undo`, `redo`; they return `OpResult` and never throw; on `ok: false` the template is unchanged.
 - Event `template-change` (`CustomEvent<Template>`): dispatched after every successful change; `detail` passes `validateTemplate`.
 
@@ -54,3 +58,7 @@ export function redo(s: EditorState): EditorState;   // no-op when nothing to re
 4. Attribute `document-type` and property `template` are definitive.
 5. No `fieldChoices` wrapper; `fieldsFor` is used directly.
 6. Invalid edits are rejected through the same `ok: false` path.
+7. The element has a `catalog` property (default `loadCatalog()`, settable; setting keeps the template, resets history).
+8. The `template` getter returns `undefined` until `document-type` or `template` has been set.
+9. A template that cannot be serialized to JSON is rejected with `ok: false`; state unchanged, nothing throws.
+10. A non-binding block (e.g. `text`) carrying a `field` property is rejected with `ok: false` (`addBlock`/`updateBlock`).
