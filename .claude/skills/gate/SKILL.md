@@ -7,8 +7,10 @@ allowed-tools: Bash Read
 1. `pos gate --base origin/main` runs index → lint → card check → ledger check → metrics check and prints GATE PASS/FAIL.
 2. Record this task's metrics record (protocol in docs/research/protocol.md §3). One call, all numbers you know:
    `pos metrics log --issue <#N> --condition cbad --model <model id> --tokens-in <N> --tokens-out <N> --tokens-discovery <input tokens before your first edit> --stopped-at <1-6> --tests-selected <n> --tests-ran <n> --tests-full <n> --base origin/main`
-   Token numbers: run `/cost` in Claude Code and copy input/output totals; `--tokens-discovery` = input tokens at the moment of your first file edit (note `/cost` then); `stopped-at` is the deepest retrieval rung you used (1 map, 2 graph/impact, 3 cards, 4 contracts, 5 source, 6 partial call graph). Be honest: the query log is cross-checked against it.
+   Leave token fields empty: the human pastes `/cost` to the research advisor, who returns one command with tokens summed over all models (protocol §3). `stopped-at` is the deepest retrieval rung you used (1 map, 2 graph/impact, 3 cards, 4 contracts, 5 source, 6 partial call graph). Be honest: the query log is cross-checked against it.
    If this task is one of the control tasks (STATE.md says so) use `--condition control`.
 3. Run only the tests `pos impact --diff --base origin/main` lists.
 4. All green → push; PR description must contain `Closes #N`, the impact report, the ledger entry link and the test command.
    Anything red → fix it with the matching skill (/card, /ledger, /adr). Do not push red; CI runs the same gates and blocks the merge.
+
+Never pipe `pos gate` into `tail`/`head` in a chain that continues on success: the pipe hides the exit code. Run it alone, or with `set -o pipefail`. The `.githooks/pre-push` hook refuses a red push anyway.

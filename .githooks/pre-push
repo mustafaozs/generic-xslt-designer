@@ -1,0 +1,13 @@
+#!/bin/sh
+# Refuse to push a red branch. A gate failure must stop the push even when an agent pipes output
+# through `tail` (which hides the exit code) — incident 2026-10-29, task #13.
+branch=$(git rev-parse --abbrev-ref HEAD)
+[ "$branch" = "main" ] && exit 0
+PYTHONUTF8=1 python -m pos.cli gate --base origin/main >/tmp/pos-gate-prepush.log 2>&1 || PYTHONUTF8=1 python3 -m pos.cli gate --base origin/main >/tmp/pos-gate-prepush.log 2>&1
+rc=$?
+if [ $rc -ne 0 ]; then
+  tail -20 /tmp/pos-gate-prepush.log
+  echo "pre-push: pos gate failed — push refused. Fix the gate, then push again." >&2
+  exit 1
+fi
+exit 0
