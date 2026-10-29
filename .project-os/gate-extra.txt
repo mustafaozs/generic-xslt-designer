@@ -1,0 +1,6 @@
+# Checks CI runs that pos gate must also run locally (one command per line).
+npm run typecheck
+npx vitest run
+python -m pytest -q tests
+python scripts/privacy_guard.py --all
+python scripts/attribution_guard.py origin/main

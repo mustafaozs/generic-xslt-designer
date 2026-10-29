@@ -27,7 +27,7 @@ Rule: one issue per session. If this session already ran a task, tell the user t
 2. dev with the brief (and the impact report in cbad). Model sonnet; opus only if a human approved a contract change.
    If the dev report contains `STOP: conflict`, post the conflict list on the issue, ask the human, count it in `--human-asks`, and continue only with the human's answer. Count every `auto-resolved` item in `--auto-resolved` and copy it to the ledger debt as a `conflict:` line.
 3. pr-writer.
-4. reviewer on the diff. REQUEST CHANGES → one new dev agent with the findings; a second REQUEST CHANGES stops and asks the human.
+4. reviewer on the diff. REQUEST CHANGES → one new dev agent with the findings, then the reviewer again on the new diff (a fix is never shipped unreviewed); a second REQUEST CHANGES stops and asks the human. Record `--review-returns <number of REQUEST CHANGES>`.
 5. `/gate`.
 
 ## 2. Record (never edit `.project-os/metrics.jsonl` by hand)
@@ -37,7 +37,7 @@ Rule: one issue per session. If this session already ran a task, tell the user t
 - Leave token fields empty. The human pastes `/cost` to the research advisor, who returns one `pos metrics log … --tokens-in … --tokens-out … --cache-read …` command summed over all models.
 
 ## 3. Ship
-Push the branch, open the PR with `Closes #<N>`, the impact report (cbad) or "control: no impact report", and the test command. Report in ≤10 lines: what changed, condition, rung, tests, reviewer findings, what needs the human.
+Push the branch, open the PR with `Closes #<N>`, the impact report (cbad) or "control: no impact report", and the test command. Then wait for CI (`env -u GITHUB_TOKEN gh pr checks <PR> --watch`). Never report the task as done while CI is red: fix within this session (the fixes are part of the task and its tokens), then report. Report in ≤10 lines: what changed, condition, rung, tests, reviewer findings, what needs the human.
 
 ## 4. Policy review reminder
 Run `pos policy-due --every <policy_review_every from project-os.toml, default 10>`. Do not count by hand. If it prints `DUE:`, end the report with: "Policy review due: run `/policy-review` in a fresh session."

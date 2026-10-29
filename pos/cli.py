@@ -112,6 +112,7 @@ def main(argv: list[str] | None = None) -> int:
         index(root); ok = True
         for name, (o, msgs) in (("lint", gates.lint(root)), ("cards", gates.card_check(root)), ("ledger", gates.ledger_check(root, a.base)), ("metrics", gates.metrics_check(root, None))):
             print(f"--- {name}"); _print(o, msgs); ok = ok and o
+        ok = gates.run_extra_gates(root) and ok
         print("GATE PASS" if ok else "GATE FAIL"); return 0 if ok else 1
     if a.cmd == "metrics":
         if a.sub == "log":

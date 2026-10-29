@@ -336,3 +336,26 @@ def policy_due(root: Path, every: int = 10) -> tuple[bool, str]:
     n = sum(1 for r in _records(root) if r.get("condition") in ("control", "cbad") and str(r.get("date", "")) > since)
     return n >= every, f"{n} task(s) since last policy review{(' (' + since + ')') if since else ''}; due at {every}"
 
+
+def run_extra_gates(root: Path) -> bool:
+    """Project-specific checks that CI runs and `pos gate` must run too, so a local PASS means CI PASS
+    (2026-10-29 incident, #16: local gate green, CI red on typecheck and privacy guard).
+    One shell command per line in .project-os/gate-extra.txt; blank lines and # comments ignored."""
+    import subprocess
+    f = root / ".project-os" / "gate-extra.txt"
+    if not f.exists():
+        return True
+    ok = True
+    for line in f.read_text(encoding="utf-8").splitlines():
+        cmd = line.strip()
+        if not cmd or cmd.startswith("#"):
+            continue
+        r = subprocess.run(cmd, shell=True, cwd=root, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        print(f"--- extra: {cmd}")
+        if r.returncode != 0:
+            print("\n".join((r.stdout + r.stderr).strip().splitlines()[-15:]))
+            print(f"FAIL extra: {cmd} (exit {r.returncode})"); ok = False
+        else:
+            print("ok")
+    return ok
+
