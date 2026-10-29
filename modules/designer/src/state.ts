@@ -2,6 +2,7 @@ import { validateTemplate } from "../../template-model/src";
 import type { Template } from "../../template-model/src";
 import type { Catalog } from "../../ubl-catalog/src";
 import { fieldsFor } from "../../ubl-catalog/src";
+import { bindingErrors } from "./internal";
 export type Block = Template["sections"][number]["blocks"][number];
 
 export interface EditorState { readonly template: Template; readonly catalog: Catalog }
@@ -45,22 +46,6 @@ function validState(s: unknown): s is EditorState {
   return isObj(s) && isObj(s.template) && isObj(s.catalog) && Array.isArray((s.catalog as any).fields);
 }
 
-/** Bindings of a caller-supplied block must be catalog ids of the right scope. Only this block is checked. */
-function bindingErrors(block: any, s: EditorState, documentType: "EFATURA" | "EARSIV"): string[] {
-  const errs: string[] = [];
-  const doc = () => fieldsFor(s.catalog, documentType, "document");
-  const line = () => fieldsFor(s.catalog, documentType, "line");
-  if (block.type === "field" && !doc().some(f => f.id === block.field))
-    errs.push(`"${String(block.field)}" is not a document-scope catalog id`);
-  if (block.type === "lineTable" && Array.isArray(block.columns)) {
-    const allowed = line();
-    block.columns.forEach((c: any, i: number) => {
-      if (!allowed.some(f => f.id === c?.field)) errs.push(`column ${i}: "${String(c?.field)}" is not a line-scope catalog id`);
-    });
-  }
-  return errs;
-}
-
 /** Run a mutation on a deep copy of the template; validate; commit to history. Never throws. */
 function edit(s: EditorState, mutate: (t: any) => string[] | void): OpResult {
   try {
@@ -98,7 +83,7 @@ export function addBlock(s: EditorState, sectionId: string, block: Block, index?
     if (!isObj(block)) return ["block must be an object"];
     const at = index === undefined ? sec.blocks.length : index;
     if (!Number.isInteger(at) || at < 0 || at > sec.blocks.length) return [`index ${String(index)} out of range`];
-    const be = bindingErrors(block, s, t.documentType);
+    const be = bindingErrors(block, s.catalog, t.documentType);
     if (be.length) return be;
     sec.blocks.splice(at, 0, clone(block));
   });
@@ -135,6 +120,8 @@ export function updateBlock(s: EditorState, blockId: string, patch: Partial<Bloc
     if (!isObj(patch)) return ["patch must be an object"];
     const cur = loc.block;
     const p = patch as Record<string, any>;
+    const merged = { ...cur, ...p };
+    if (merged.type !== "field" && "field" in merged) return ["only a field block may carry a field property"];
     if ("field" in p && p.field !== cur.field) return ["updateBlock cannot change a field binding; use bindField"];
     if ("type" in p && p.type !== cur.type && (cur.type === "field" || cur.type === "lineTable" || p.type === "field" || p.type === "lineTable"))
       return ["updateBlock cannot change binding block types"];
@@ -193,8 +180,3 @@ export function redo(s: EditorState): EditorState {
   }
 }
 
-/** Binding errors of every block in a template (used by the element's `template` setter; not part of index.ts). */
-export function templateBindingErrors(template: Template, catalog: Catalog): string[] {
-  const s = { template, catalog } as EditorState;
-  return template.sections.flatMap(sec => sec.blocks.flatMap(b => bindingErrors(b, s, template.documentType)));
-}

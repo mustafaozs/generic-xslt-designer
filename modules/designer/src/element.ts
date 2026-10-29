@@ -3,10 +3,12 @@ import type { Template } from "../../template-model/src";
 import { loadCatalog } from "../../ubl-catalog/src";
 import type { Catalog } from "../../ubl-catalog/src";
 import * as ops from "./state";
+import { templateBindingErrors } from "./internal";
 import type { Block, EditorState, OpResult } from "./state";
 
 const TAG = "xslt-designer";
 
+const NO_TEMPLATE: OpResult = { ok: false, errors: ["no template: set document-type or template first"] };
 const errOf = (e: unknown): OpResult => ({ ok: false, errors: [e instanceof Error ? e.message : String(e)] });
 
 export class XsltDesigner extends HTMLElement {
@@ -16,17 +18,19 @@ export class XsltDesigner extends HTMLElement {
 
   private get cat(): Catalog { return (this._catalog ??= loadCatalog()); }
 
-  private seed(): EditorState {
-    const dt = this.getAttribute("document-type") === "EARSIV" ? "EARSIV" : "EFATURA";
+  private seed(): EditorState | undefined {
+    const dt = this.getAttribute("document-type");
+    if (dt !== "EFATURA" && dt !== "EARSIV") return undefined;
     return ops.createState(defaultTemplate(dt), this.cat);
   }
 
-  private ensure(): EditorState { return (this._state ??= this.seed()); }
+  /** undefined until document-type or template has been set */
+  private ensure(): EditorState | undefined { return (this._state ??= this.seed()); }
 
   /** Changing document-type before any edit re-seeds the default template. */
   attributeChangedCallback(name: string, oldV: string | null, newV: string | null): void {
     try {
-      if (name === "document-type" && oldV !== newV && this._state && !this._touched) this._state = this.seed();
+      if (name === "document-type" && oldV !== newV && !this._touched) this._state = this.seed();
     } catch { /* never throw from a callback */ }
   }
   private _touched = false;
@@ -41,11 +45,11 @@ export class XsltDesigner extends HTMLElement {
     } catch { /* ignore */ }
   }
 
-  get template(): Template | undefined { try { return this.ensure().template; } catch { return undefined; } }
+  get template(): Template | undefined { try { return this.ensure()?.template; } catch { return undefined; } }
   set template(t: Template) {
     try {
       const v = validateTemplate(t);
-      if (!v.ok || ops.templateBindingErrors(v.value, this.cat).length) return;
+      if (!v.ok || templateBindingErrors(v.value, this.cat).length) return;
       this._state = ops.createState(v.value, this.cat);
       this._touched = true;
       this.dispatchEvent(new CustomEvent<Template>("template-change", { detail: this._state.template }));
@@ -66,6 +70,7 @@ export class XsltDesigner extends HTMLElement {
   private step(f: (s: EditorState) => EditorState): OpResult {
     try {
       const cur = this.ensure();
+      if (!cur) return NO_TEMPLATE;
       const next = f(cur);
       if (next === cur) return { ok: true, state: cur };
       return this.run({ ok: true, state: next });
@@ -73,7 +78,10 @@ export class XsltDesigner extends HTMLElement {
   }
 
   private call(f: (s: EditorState) => OpResult): OpResult {
-    try { return this.run(f(this.ensure())); }
+    try {
+      const cur = this.ensure();
+      return cur ? this.run(f(cur)) : NO_TEMPLATE;
+    }
     catch (e) { return errOf(e); }
   }
 
