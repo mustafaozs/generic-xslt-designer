@@ -19,3 +19,14 @@
 {"t": 1793213124, "kind": "impact", "arg": "STATE.md docs/ledger/2026-10.md fixtures/ubl/efatura-usd.xml modules/xslt-codegen/tests/efatura-usd.test.ts modules/xslt-codegen/tests/golden/efatura-usd/case.json modules/xslt-codegen/tests/golden/efatura-usd/expected.html modules/xslt-codegen/tests/golden/efatura-usd/expected.xslt modules/xslt-codegen/tests/golden/efatura-usd/template.json", "size": 5}
 {"t": 1793213156, "kind": "impact", "arg": "STATE.md docs/ledger/2026-10.md fixtures/ubl/efatura-usd.xml modules/xslt-codegen/tests/efatura-usd.test.ts modules/xslt-codegen/tests/golden/efatura-usd/case.json modules/xslt-codegen/tests/golden/efatura-usd/expected.html modules/xslt-codegen/tests/golden/efatura-usd/expected.xslt modules/xslt-codegen/tests/golden/efatura-usd/template.json", "size": 5}
 {"t": 1793288875, "kind": "impact", "arg": "in-words-tr xslt-codegen fixtures/ubl/inwords-matrix/", "size": 8}
+{"t": 1793300069, "kind": "map", "arg": "", "size": 1956}
+{"t": 1793300072, "kind": "impact", "arg": "defaultTemplate validateTemplate fieldsFor modules/template-model modules/ubl-catalog", "size": 16}
+{"t": 1793300076, "kind": "impact", "arg": "contracts/designer.md", "size": 1}
+{"t": 1793300076, "kind": "impact", "arg": "contracts/template-model.schema.json contracts/ubl-catalog.schema.json", "size": 2}
+{"t": 1793300220, "kind": "impact", "arg": "contracts/designer.md", "size": 1}
+{"t": 1793301818, "kind": "map", "arg": "", "size": 2759}
+{"t": 1793302003, "kind": "impact", "arg": "STATE.md contracts/designer.md docs/ledger/2026-10.md modules/designer/CLAUDE.md modules/designer/src/element.ts modules/designer/src/index.ts modules/designer/src/state.ts modules/designer/tests/element.test.ts modules/designer/tests/state.test.ts package-lock.json package.json", "size": 11}
+{"t": 1793302350, "kind": "impact", "arg": "STATE.md contracts/designer.md docs/ledger/2026-10.md modules/designer/CLAUDE.md modules/designer/src/element.ts modules/designer/src/index.ts modules/designer/src/state.ts modules/designer/tests/element.test.ts modules/designer/tests/state.test.ts package-lock.json package.json", "size": 11}
+{"t": 1793302415, "kind": "impact", "arg": "STATE.md contracts/designer.md docs/ledger/2026-10.md modules/designer/CLAUDE.md modules/designer/src/element.ts modules/designer/src/index.ts modules/designer/src/state.ts modules/designer/tests/element.test.ts modules/designer/tests/state.test.ts package-lock.json package.json", "size": 11}
+{"t": 1793303138, "kind": "impact", "arg": "STATE.md contracts/designer.md docs/ledger/2026-10.md modules/designer/CLAUDE.md modules/designer/src/element.ts modules/designer/src/index.ts modules/designer/src/internal.ts modules/designer/src/state.ts modules/designer/tests/element.test.ts modules/designer/tests/state.test.ts", "size": 10}
+{"t": 1793304766, "kind": "impact", "arg": "modules/designer/src/element.ts", "size": 2}
