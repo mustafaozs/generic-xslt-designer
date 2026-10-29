@@ -27,6 +27,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--root", type=Path, default=None, help="repo root (auto-detected)")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
+    pd = sub.add_parser("policy-due", help="is a /policy-review due? (counts control+cbad tasks, never setup)"); pd.add_argument("--every", type=int, default=10)
     sub.add_parser("index", help="(re)build the graph for changed files").add_argument("-v", action="store_true")
     sub.add_parser("map", help="symbol map summary (goes in the fixed prefix)")
     q = sub.add_parser("query", help="run SQL against .project-os/index.db"); q.add_argument("sql")
@@ -72,6 +73,8 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     root = find_root(a.root)
 
+    if a.cmd == "policy-due":
+        due, msg = gates.policy_due(root, a.every); print(("DUE: " if due else "not due: ") + msg); return 0
     if a.cmd == "index":
         s = index(root, verbose=a.v); print(json.dumps(s)); return 0
     if a.cmd == "map":
@@ -101,6 +104,11 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "lint":
         return _print(*gates.lint(root))
     if a.cmd == "gate":
+        if a.base is None:  # on a branch, a HEAD-only ledger check is the wrong question (2026-10-29 incident)
+            from .repo import git as _git
+            branch = _git(root, "rev-parse", "--abbrev-ref", "HEAD")
+            if branch not in ("main", "master", "HEAD", "") and _git(root, "rev-parse", "--verify", "-q", "origin/main"):
+                a.base = "origin/main"; print("base: origin/main (branch default)")
         index(root); ok = True
         for name, (o, msgs) in (("lint", gates.lint(root)), ("cards", gates.card_check(root)), ("ledger", gates.ledger_check(root, a.base)), ("metrics", gates.metrics_check(root, None))):
             print(f"--- {name}"); _print(o, msgs); ok = ok and o

@@ -326,3 +326,13 @@ def metrics_report(root: Path, as_json: bool = False) -> str:
         if k.startswith("H"):
             lines.append(f"{k}: {v if v is None or isinstance(v, int) else round(v, 3)}")
     return "\n".join(lines)
+
+
+def policy_due(root: Path, every: int = 10) -> tuple[bool, str]:
+    """Mechanical count for the /policy-review reminder: pilot tasks (control or cbad, not setup) recorded
+    after the newest evidence/*-policy-review.md (by its YYYY-MM-DD prefix)."""
+    reviews = sorted((root / "docs" / "research" / "evidence").glob("*-policy-review.md"))
+    since = reviews[-1].name[:10] if reviews else ""
+    n = sum(1 for r in _records(root) if r.get("condition") in ("control", "cbad") and str(r.get("date", "")) > since)
+    return n >= every, f"{n} task(s) since last policy review{(' (' + since + ')') if since else ''}; due at {every}"
+
