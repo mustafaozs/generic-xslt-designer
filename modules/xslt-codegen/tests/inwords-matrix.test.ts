@@ -49,8 +49,7 @@ const table: Array<[string, string]> = [
 describe("in-words-tr boundary matrix", () => {
   test("generation has no errors", () => { expect(result.errors).toEqual([]); });
 
-  test.each(table)("%s", (fixture, expected, ctx) => {
-    if (!engine) { ctx.skip(); return; }
+  test.skipIf(!engine).each(table)("%s", (fixture, expected) => {
     expect(inWords(fixture)).toBe(expected);
   });
 
