@@ -19,7 +19,7 @@ Invariantlar:
 - Durumdaki şablonlar derin dondurulur (undo/redo sonuçları dahil); dışarıdan değiştirme geçmişi bozamaz.  JSON-dışı girdi `ok:false`.
 - Geçmiş (undo/redo) modül düzeyi WeakMap'te, anahtar durum nesnesi.
 
-Katalog/aralık notları (contract'ta yok, kod davranışı):
+Notlar:
 - Element katalogu varsayılan `loadCatalog()`; `catalog` setter geçersiz (fields dizisi yok) değeri sessizce yok sayar, geçerliyse şablonu tutar ve geçmişi sıfırlar.
 - `template` setter: geçersiz şablonu veya katalogda olmayan/yanlış kapsamlı bağlamalı şablonu yok sayar; geçerliyse geçmişi sıfırlar ve `template-change` atar.
 - Element `undo`/`redo` her zaman `ok:true`; event yalnız şablon gerçekten değiştiyse.
@@ -29,6 +29,6 @@ Katalog/aralık notları (contract'ta yok, kod davranışı):
 Testler: `modules/designer/tests/state.test.ts` (24), `modules/designer/tests/element.test.ts` (13, happy-dom).
 
 Son değişiklikler:
-- #17 (designer contract v1 + state ops + element), bkz. docs/ledger/2026-10.md
+- #17 (designer), bkz. ledger
 
 hash: 4bc65b8d6939ee14
