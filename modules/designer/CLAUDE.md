@@ -22,7 +22,7 @@ Invariantlar:
 Notlar:
 - Element katalogu varsayılan `loadCatalog()`; `catalog` setter geçersiz (fields dizisi yok) değeri sessizce yok sayar, geçerliyse şablonu tutar ve geçmişi sıfırlar.
 - `template` setter: geçersiz şablonu veya katalogda olmayan/yanlış kapsamlı bağlamalı şablonu yok sayar; geçerliyse geçmişi sıfırlar ve `template-change` atar.
-- Element `undo`/`redo` her zaman `ok:true`; event yalnız şablon gerçekten değiştiyse.
+- Element `undo`/`redo`: şablon `undefined` iken `ok:false` ("no template"); aksi halde `ok:true`, event yalnız şablon gerçekten değiştiyse.
 - `moveBlock` `toIndex`'i kaynak bloğu çıkardıktan sonraki hedef dizisine göre sayar.
 - `document-type` ilk erişimde okunur; şablon henüz değiştirilmemişse (`attributeChangedCallback`) attribute değişimi varsayılan şablonu yeniden tohumlar, değiştirilmişse yok sayılır.
 
