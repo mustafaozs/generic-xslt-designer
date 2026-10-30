@@ -20,14 +20,16 @@ Invariantlar:
 - Hata varken bile xslt döner ama `errors` boş değilse dışa aktarılmaz
 - Sabit sıra: prolog → değişkenler (`$watermark`, `$payableInWords`, `$page`) → adlandırılmış şablonlar (money, date-tr, number-tr, in-words-tr; yalnız kullanılanlar) → `match="/"` → `section-<id>` şablonları
 - Katalog XPath'leri `n1:Invoice` bağlamında çözülür (`/n1:Invoice`); alan kapsamı (document/line/taxSubtotal) blok tipiyle eşleşmezse `CG-FIELD-SCOPE`
-- Yazıyla tutar (Yalnız: …) özyinelemeli `in-words-tr`/`in-words-tr-int` şablonudur (ADR-0002); bitişik yazım: `BirMilyonİkiYüz… TL Beş Kr`; 0,00 → `Sıfır TL` (kuruş kısmı yok)
+- Yazıyla tutar (Yalnız: …) özyinelemeli `in-words-tr`/`in-words-tr-int` şablonudur (ADR-0002); kelimeler bitişik: `BirMilyonİkiYüz… TL Beş Kr`; 0,00 → `Sıfır TL Sıfır Kr`.
+- `in-words-tr` para birimini `cur` ile alır (doc.currency; boş → TRY); sözcükler ADR-0005'te.
 
-Testler: modules/xslt-codegen/tests — `generate.test.ts` (bağlama kuralları), `golden.test.ts` (golden/<case>: expected.xslt bayt eşitliği + libxslt ile expected.html), `efatura-fixture.test.ts` (#4: efatura-tevkifat). `earsiv-full.test.ts` (#15: earsiv-full). `inwords-matrix.test.ts` (#16: sınır tutarları, 12 fixture; libxslt gerekir). `npm run golden:update` yeniler; lxml yoksa html testi atlanır, CI `GOLDEN_REQUIRE_ENGINE=1` ile zorlar.
+Testler: modules/xslt-codegen/tests — `generate.test.ts` (bağlama kuralları), `golden.test.ts` (golden/<case>: bayt + libxslt html), `efatura-fixture.test.ts` (#4: efatura-tevkifat). `earsiv-full.test.ts` (#15: earsiv-full). `inwords-matrix.test.ts` (#16: sınır tutarları, 12 fixture). `inwords-currency.test.ts` (#28, 9 vaka). `npm run golden:update` yeniler; lxml yoksa html testi atlanır, CI `GOLDEN_REQUIRE_ENGINE=1` ile zorlar.
 
 Son değişiklikler:
-- #3: blok tipleri text/field/logo/lineTable/taxTable/totals/qr/signature/spacer/rule; golden `earsiv-default`
-- #4: ikinci fixture (sentetik e-Fatura TEVKIFAT, 13 satır, tevkifat, iskonto); golden `efatura-tevkifat`
-- #15: tam e-Arşiv fixture (4 kalem, toplam, filigran, not); golden `earsiv-full`, `earsiv-full-nonote`; public yüzey değişmedi
-- #16: in-words-tr sınır matrisi (15 test); yalnız test/fixture, kod, public yüzey değişmedi
+- #3: blok tipleri; golden `earsiv-default`
+- #4: e-Fatura TEVKIFAT fixture; golden `efatura-tevkifat`
+- #15: e-Arşiv fixture; goldens `earsiv-full`, `earsiv-full-nonote`
+- #16: in-words-tr sınır matrisi
+- #28: in-words-tr para birimi (ADR-0005); 5 golden yenilendi (insan incelemesi); ledger 28
 
-hash: 02b642c53690e24c
+hash: 780be76f4e63022f

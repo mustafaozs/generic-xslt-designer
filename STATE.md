@@ -9,7 +9,7 @@ Locked decisions:
 - Languages: TypeScript for modules; pos kit in Python.
 - Golden reference engine is libxslt via `lxml` (contracts/xslt-codegen.md, 2026-10-27); .NET parity is checked in H4, browser parity is a CI job (pending).
 - Number-to-words (Yalnız: …) is a recursive named template `in-words-tr` in the generated XSLT (task #3, 2026-10-27); verified identical on libxslt and .NET.
-- in-words format per ADR-0005 (Yalnız: ; 0,00 → Sıfır TL Sıfır Kr; foreign currencies by ISO code EUR/GBP/USD; implementation in #28).
+- in-words format per ADR-0005 (Yalnız: ; 0,00 → Sıfır TL Sıfır Kr; foreign currencies by ISO code, number words adjacent in all currencies (owner option A); implemented in #28, uncommitted at write time).
 - Watermark field is derived.watermark (owner decision 2026-10-28). contracts/gib-rules.md still says profile.watermark; the contract text is corrected in #27. Not an open question.
 
 Research protocol (docs/research/protocol.md): Control window = #4 plus the next four task issues worked (protocol v1.4 §2d, by order not number); then cbad. Live list: kit docs/research/evidence/control-window.md.
@@ -23,7 +23,8 @@ Open questions:
 - normalizeHtml collapses whitespace, so white-space:pre-line multi-line text blocks lose newlines in expected.html (found in #14); decide whether the golden comparison should preserve line breaks.
 - gib-rules: checkXslt covers X10-* and EXT-*; checkXslt covers LINES-ALL (#43), NUM-TR (#44); checkTemplate covers REQ-FIELDS (partial: ProfileID/InvoiceTypeCode not checked), REQ-EARSIV-NOTE, FONT-SAFE, SIZE-MAX (#12); CUR/WITHHOLD/PRINT remain; codegen does not call gib-rules yet (`CG-*` binding errors only).
 - gib-rules LINES-ALL limits (#43): `position()` inside `xsl:if` is not detected; `xsl:apply-templates` line loops are not handled. Decide whether to tighten before codegen calls gib-rules.
-- efatura-usd golden (#13, scope reduced by human decision after dev STOP): does not exercise TRY-equivalent or in-words, the real USD gaps; `money` appends raw @currencyID for non-TRY; number-tr drops trailing zeros of the rate. Follow-ups: #27 (tryEquivalent row/enum), #28 (currency-aware in-words). totals.tryTax not bound (needs second TaxTotal in fixture).
+- efatura-usd golden (#13, scope reduced by human decision after dev STOP): does not exercise TRY-equivalent or in-words, the real USD gaps; `money` appends raw @currencyID for non-TRY; number-tr drops trailing zeros of the rate. Follow-up: #27 (tryEquivalent row/enum). The in-words currency part is done in #28.
+- in-words (#28) open: ADR-0005 is silent on a zero amount in a code without a minor-unit word (current output `Sıfır CHF 00/100`, untested); a missing DocumentCurrencyCode is treated as TRY (owner to confirm); the currency XPath is hardcoded in the generator, not bound through the catalog; the 5 regenerated goldens need human diff review before merge. totals.tryTax not bound (needs second TaxTotal in fixture).
 
 Stop condition for current task: all four cards pinned, `pos gate` green, catalog + schema validate, golden test harness runs (even with 1 case).
 Progress (task #3, 2026-10-27): xslt-codegen body + golden harness with 1 case (`earsiv-default`); gib-rules body still pending.
@@ -41,6 +42,8 @@ Progress (task #17, 2026-10-29): designer contract v1 (human-approved decisions)
 Progress (task #43, 2026-10-30): gib-rules checkXslt LINES-ALL + `check-lines.test.ts` (4 tests); no dependent tests to run: checkXslt is called only inside gib-rules (src/index.ts and its two test files), xslt-codegen and designer do not call it.
 Progress (task #44, 2026-10-30): gib-rules checkXslt NUM-TR (decimal-format "tr" + format-number 'tr' check, warn) + 7 tests in check-xslt.test.ts; known limit: a format name passed as a variable or expression counts as a hit; uncommitted at write time.
 
-Block 2 order: #43 (done), #44 (done), #28, #41, #39, #34, #27, #21, #40, #42 (kit block2-plan.md)
+Progress (task #28, 2026-10-30): in-words-tr currency-aware (ADR-0005; `cur` from doc.currency); 9 new tests (inwords-currency.test.ts), zero case in inwords-matrix changed; 5 goldens regenerated (human diff review required); card and ADR-0005 CHF example fixed; condition cbad; uncommitted at write time.
+
+Block 2 order: #43 (done), #44 (done), #28 (done, uncommitted), #41, #39, #34, #27, #21, #40, #42 (kit block2-plan.md)
 
 Last updated: 2026-10-30

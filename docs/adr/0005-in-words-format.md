@@ -12,7 +12,7 @@ Decided by: repository owner (product decision, 2026-10-29)
    - *default:* this applies to the zero amount only; other whole amounts keep their current form (e.g. `100,00` → `Yüz TL`). Changing that needs a new decision.
 3. Foreign currencies use the ISO code as the currency word. Owner decision for EUR and GBP: `EUR`, `GBP`.
    - *default:* the same rule for USD (`USD`) and any other code, so one rule covers every currency; this replaces the earlier draft "ABD DOLARI … SENT" in #13/#28.
-   - *default:* minor unit word: `Cent` for EUR and USD, `Pence` for GBP; any other currency prints the minor part as `<n>/100` (e.g. `Yalnız: Bin İki Yüz CHF 50/100`).
+   - *default:* minor unit word: `Cent` for EUR and USD, `Pence` for GBP; any other currency prints the minor part as `<n>/100` (e.g. `Yalnız: BinİkiYüz CHF 50/100`; number words stay adjacent in every currency, owner option A).
    - *default:* zero minor part for a foreign currency follows rule 2 by analogy only at amount 0 (`Sıfır EUR Sıfır Cent`).
 4. TRY keeps `TL` / `Kr`.
 

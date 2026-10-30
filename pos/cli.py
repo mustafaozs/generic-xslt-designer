@@ -66,6 +66,7 @@ def main(argv: list[str] | None = None) -> int:
     g = sub.add_parser("gate", help="run every CI gate: index, lint, card check, ledger check"); g.add_argument("--base", default=None)
 
     m = sub.add_parser("metrics", help="task metrics").add_subparsers(dest="sub", required=True)
+    mr = m.add_parser("remove", help="remove a stray record, audited in metrics-removed.jsonl"); mr.add_argument("--issue", required=True); mr.add_argument("--reason", required=True)
     ml = m.add_parser("log", help="one record per task (protocol §3)"); ml.add_argument("--issue", required=True)
     ml.add_argument("--condition", choices=["cbad", "control", "setup"], required=True); ml.add_argument("--model", default=None)
     ml.add_argument("--tokens-in", type=int, default=None); ml.add_argument("--tokens-out", type=int, default=None)
@@ -138,6 +139,7 @@ def main(argv: list[str] | None = None) -> int:
                 tokens_out=a.tokens_out, tokens_discovery=a.tokens_discovery, cache_read=a.cache_read, stopped_at=a.stopped_at, tests_selected=a.tests_selected,
                 tests_ran=a.tests_ran, tests_full=a.tests_full, impact_misses=a.impact_misses, card_fail_first_push=a.card_fail_first_push,
                 ledger_fail_first_push=a.ledger_fail_first_push, review_returns=a.review_returns, gate_seconds=a.gate_seconds, base=a.base, deviation=a.deviation, diff_lines=a.diff_lines, human_asks=a.human_asks, auto_resolved=a.auto_resolved), ensure_ascii=False)); return 0
+        if a.sub == "remove": n = gates.metrics_remove(root, a.issue, a.reason); print(f"removed {n} record(s) with issue {a.issue!r}"); return 0
         if a.sub == "check": return _print(*gates.metrics_check(root, a.issue))
         if a.sub == "report": print(gates.metrics_report(root, a.json)); return 0
     return 1

@@ -9,7 +9,7 @@
   <xsl:decimal-format name="tr" decimal-separator="," grouping-separator="."/>
   <xsl:variable name="watermark" select="'e-Arşiv Fatura'"/>
   <xsl:variable name="payableInWords">
-    <xsl:call-template name="in-words-tr"><xsl:with-param name="n" select="/n1:Invoice/cac:LegalMonetaryTotal/cbc:PayableAmount"/></xsl:call-template>
+    <xsl:call-template name="in-words-tr"><xsl:with-param name="n" select="/n1:Invoice/cac:LegalMonetaryTotal/cbc:PayableAmount"/><xsl:with-param name="cur" select="/n1:Invoice/cbc:DocumentCurrencyCode"/></xsl:call-template>
   </xsl:variable>
   <xsl:template name="money">
     <xsl:param name="v"/>
@@ -37,7 +37,21 @@
   </xsl:template>
   <xsl:template name="in-words-tr">
     <xsl:param name="n"/>
+    <xsl:param name="cur" select="'TRY'"/>
     <xsl:if test="string(number($n)) != 'NaN'">
+      <xsl:variable name="code">
+        <xsl:choose>
+          <xsl:when test="string($cur) = ''"><xsl:text>TRY</xsl:text></xsl:when>
+          <xsl:otherwise><xsl:value-of select="$cur"/></xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:variable name="unit">
+        <xsl:choose>
+          <xsl:when test="$code = 'TRY'"><xsl:text>Kr</xsl:text></xsl:when>
+          <xsl:when test="$code = 'USD' or $code = 'EUR'"><xsl:text>Cent</xsl:text></xsl:when>
+          <xsl:when test="$code = 'GBP'"><xsl:text>Pence</xsl:text></xsl:when>
+        </xsl:choose>
+      </xsl:variable>
       <xsl:variable name="k" select="round(number($n) * 100)"/>
       <xsl:variable name="lira" select="floor($k div 100)"/>
       <xsl:variable name="kurus" select="$k mod 100"/>
@@ -46,11 +60,26 @@
         <xsl:when test="$lira = 0"><xsl:text>Sıfır</xsl:text></xsl:when>
         <xsl:otherwise><xsl:call-template name="in-words-tr-int"><xsl:with-param name="n" select="$lira"/></xsl:call-template></xsl:otherwise>
       </xsl:choose>
-      <xsl:text> TL</xsl:text>
-      <xsl:if test="$kurus > 0">
+      <xsl:text> </xsl:text>
+      <xsl:choose>
+        <xsl:when test="$code = 'TRY'"><xsl:text>TL</xsl:text></xsl:when>
+        <xsl:otherwise><xsl:value-of select="$code"/></xsl:otherwise>
+      </xsl:choose>
+      <xsl:if test="$kurus > 0 or $k = 0">
         <xsl:text> </xsl:text>
-        <xsl:call-template name="in-words-tr-int"><xsl:with-param name="n" select="$kurus"/></xsl:call-template>
-        <xsl:text> Kr</xsl:text>
+        <xsl:choose>
+          <xsl:when test="$unit != ''">
+            <xsl:choose>
+              <xsl:when test="$kurus = 0"><xsl:text>Sıfır</xsl:text></xsl:when>
+              <xsl:otherwise><xsl:call-template name="in-words-tr-int"><xsl:with-param name="n" select="$kurus"/></xsl:call-template></xsl:otherwise>
+            </xsl:choose>
+            <xsl:text> </xsl:text><xsl:value-of select="$unit"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:if test="$kurus &lt; 10"><xsl:text>0</xsl:text></xsl:if>
+            <xsl:value-of select="$kurus"/><xsl:text>/100</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:if>
     </xsl:if>
   </xsl:template>
