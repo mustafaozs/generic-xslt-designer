@@ -45,4 +45,24 @@ describe("newBlockId (internal)", () => {
     const dup = allIds(s)[0];
     expect(addBlock(s, "header", { id: dup, type: "text", text: "x" } as any).ok).toBe(false);
   });
+  const put = (s: any, section: string, id: string) => {
+    const r = addBlock(s, section, { id, type: "text", text: "x" } as any);
+    expect(r.ok).toBe(true);
+    return (r as any).state;
+  };
+  it("returns the first gap (block-2) when block-1 and block-3 exist across sections", () => {
+    let s = mk();
+    s = put(s, "header", "block-1");
+    s = put(s, "parties", "block-3");
+    expect(allIds(s)).toEqual(expect.arrayContaining(["block-1", "block-3"]));
+    expect(allIds(s)).not.toContain("block-2");
+    expect(newBlockId(s)).toBe("block-2");
+  });
+  it("returns block-4 when block-1, block-2 and block-3 exist across sections", () => {
+    let s = mk();
+    s = put(s, "header", "block-1");
+    s = put(s, "parties", "block-2");
+    s = put(s, "totals", "block-3");
+    expect(newBlockId(s)).toBe("block-4");
+  });
 });
