@@ -44,6 +44,8 @@ Progress (task #44, 2026-10-30): gib-rules checkXslt NUM-TR (decimal-format "tr"
 
 Progress (task #28, 2026-10-30): in-words-tr currency-aware (ADR-0005; `cur` from doc.currency); 9 new tests (inwords-currency.test.ts), zero case in inwords-matrix changed; 5 goldens regenerated (human diff review required); card and ADR-0005 CHF example fixed; condition cbad; uncommitted at write time.
 
-Block 2 order: #43 (done), #44 (done), #28 (done, uncommitted), #41, #39, #34, #27, #21, #40, #42 (kit block2-plan.md)
+Progress (task #41, 2026-10-30): designer internal `sectionOf(t, blockId)` (internal.ts, not exported) used by removeBlock/moveBlock + 3 tests (section-of.test.ts); public surface and contracts/designer.md unchanged; condition control; full suite 171 pass; uncommitted at write time.
+
+Block 2 order: #43 (done), #44 (done), #28 (done, uncommitted), #41 (done, uncommitted), #39, #34, #27, #21, #40, #42 (kit block2-plan.md)
 
 Last updated: 2026-10-30

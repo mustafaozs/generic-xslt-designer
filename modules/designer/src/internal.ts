@@ -23,3 +23,8 @@ export function bindingErrors(block: any, catalog: Catalog, documentType: Docume
 export function templateBindingErrors(template: Template, catalog: Catalog): string[] {
   return template.sections.flatMap(sec => sec.blocks.flatMap(b => bindingErrors(b, catalog, template.documentType)));
 }
+
+/** Id of the section holding `blockId`, or undefined when no section holds it. */
+export function sectionOf(t: { sections: any[] }, blockId: unknown): string | undefined {
+  return t.sections.find((s: any) => s.blocks.some((b: any) => b.id === blockId))?.id;
+}
