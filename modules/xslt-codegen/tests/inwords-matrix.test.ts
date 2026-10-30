@@ -34,7 +34,7 @@ function inWords(fixture: string): string {
 }
 
 const table: Array<[string, string]> = [
-  ["payable-0.00.xml", "Sıfır TL"],
+  ["payable-0.00.xml", "Sıfır TL Sıfır Kr"],
   ["payable-0.01.xml", "Sıfır TL Bir Kr"],
   ["payable-1.00.xml", "Bir TL"],
   ["payable-10.00.xml", "On TL"],
