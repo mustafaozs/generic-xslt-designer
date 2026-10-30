@@ -113,6 +113,11 @@ export function checkXslt(xslt: string): RuleHit[] {
       if (t.name.toLowerCase() === "script") hit("EXT-NO-SCRIPT", "script element");
     }
   }
+  const linesOk = all.some(t => isXsl(t, "for-each") && (() => {
+    const expr = blankLiterals(get(t, "select") ?? "");
+    return /(?<![\w.-])cac:InvoiceLine(?![\w.-])/.test(expr) && !/position\s*\(/.test(expr);
+  })());
+  if (!linesOk) hit("LINES-ALL", "no xsl:for-each over cac:InvoiceLine without a position() limit");
   // url() in <style> text or CSS emitted outside attributes
   for (const m of text.matchAll(/url\(\s*["']?\s*(?:https?:)?\/\/[^)]*\)/gi)) hit("EXT-NONE", `external url(): ${m[0]}`);
   return hits;
