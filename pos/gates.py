@@ -132,6 +132,7 @@ def ledger_check(root: Path, base: str | None = None) -> tuple[bool, list[str]]:
 def ledger_add(root: Path, issue: str, title: str, base: str | None = None,
                tokens_in: int = 0, tokens_out: int = 0, tests_ran: int = 0, debt: str = "none",
                adr: str = "none", contracts: str | None = None) -> str:
+    issue = norm_issue(issue)
     # The entry ships inside the commit it describes, so it cannot know that sha; the commit that
     # touches docs/ledger/ is self-recording for `ledger check`. We record the parent for traceability.
     sha = "(this commit) after " + (git(root, "rev-parse", "--short", "HEAD") or "root")
@@ -207,8 +208,32 @@ def log_query(root: Path, kind: str, arg: str, result_size: int) -> None:
         f.write(json.dumps({"t": int(time.time()), "kind": kind, "arg": arg, "size": result_size}) + "\n")
 
 
+def norm_issue(issue):
+    """'28' and '#28' are the same task; records and ledger always use '#28' (2026-10-30: pr-writer wrote '28')."""
+    s = str(issue).strip()
+    return f"#{s}" if re.fullmatch(r"\d+", s) else s
+
+
+def metrics_remove(root: Path, issue: str, reason: str) -> int:
+    """Remove records of one issue id exactly as written (no normalisation), keeping an audit line.
+    The only sanctioned way to delete a metrics record; metrics.jsonl is never edited by hand."""
+    p = root / ".project-os" / "metrics.jsonl"
+    recs = _records(root)
+    keep = [r for r in recs if str(r.get("issue")) != str(issue)]
+    gone = [r for r in recs if str(r.get("issue")) == str(issue)]
+    if gone:
+        p.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in keep), encoding="utf-8")
+        audit = root / ".project-os" / "metrics-removed.jsonl"
+        with audit.open("a", encoding="utf-8") as f:
+            for r in gone:
+                f.write(json.dumps({"removed_t": int(time.time()), "reason": reason, "record": r}, ensure_ascii=False) + "\n")
+    return len(gone)
+
+
 def metrics_log(root: Path, **fields) -> dict:
     """One record per task. Adds diff size and the rungs actually queried (from queries.log)."""
+    if fields.get("issue") is not None:
+        fields["issue"] = norm_issue(fields["issue"])
     rec = {"t": int(time.time()), "date": f"{date.today():%Y-%m-%d}"}
     rec.update({k: v for k, v in fields.items() if v is not None})
     kv = root / ".project-os" / "kit-version"
