@@ -38,7 +38,7 @@ Progress (task #16, 2026-10-29): in-words-tr boundary matrix test (`inwords-matr
 
 Progress (task #17, 2026-10-29): designer contract v1 (human-approved decisions) + pure state ops + xslt-designer element + card; 37 tests; condition cbad, not counted in control window; H3 started.
 
-Progress (task #43, 2026-10-30): gib-rules checkXslt LINES-ALL + `check-lines.test.ts` (4 tests); uncommitted at write time; xslt-codegen and designer tests not run for this change.
+Progress (task #43, 2026-10-30): gib-rules checkXslt LINES-ALL + `check-lines.test.ts` (4 tests); uncommitted at write time; no dependent tests to run: checkXslt is called only inside gib-rules (src/index.ts and its two test files), xslt-codegen and designer do not call it.
 
 Block 2 order: #43 (done, uncommitted), #44, #28, #41, #39, #34, #27, #21, #40, #42 (kit block2-plan.md)
 

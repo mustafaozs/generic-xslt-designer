@@ -15,7 +15,10 @@ const rules = (x: string) => checkXslt(x).map(h => h.rule);
 describe("golden stylesheets", () => {
   for (const n of ["earsiv-default", "efatura-tevkifat"]) {
     test(`${n} has no error hits`, () => {
-      expect(checkXslt(golden(n)).filter(h => h.severity === "error")).toEqual([]);
+      expect(checkAll(golden(n)).filter(h => h.severity === "error")).toEqual([]);
+    });
+    test(`${n} gives no LINES-ALL hit`, () => {
+      expect(checkAll(golden(n)).filter(h => h.rule === "LINES-ALL")).toEqual([]);
     });
   }
 });
