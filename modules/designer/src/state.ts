@@ -2,7 +2,7 @@ import { validateTemplate } from "../../template-model/src";
 import type { Template } from "../../template-model/src";
 import type { Catalog } from "../../ubl-catalog/src";
 import { fieldsFor } from "../../ubl-catalog/src";
-import { bindingErrors } from "./internal";
+import { bindingErrors, sectionOf } from "./internal";
 export type Block = Template["sections"][number]["blocks"][number];
 
 export interface EditorState { readonly template: Template; readonly catalog: Catalog }
@@ -91,21 +91,21 @@ export function addBlock(s: EditorState, sectionId: string, block: Block, index?
 
 export function removeBlock(s: EditorState, blockId: string): OpResult {
   return edit(s, t => {
-    const loc = locate(t, blockId);
-    if (!loc) return [`unknown block "${String(blockId)}"`];
-    loc.section.blocks.splice(loc.index, 1);
+    const from = findSection(t, sectionOf(t, blockId));
+    if (!from) return [`unknown block "${String(blockId)}"`];
+    from.blocks.splice(from.blocks.findIndex((b: any) => b.id === blockId), 1);
   });
 }
 
 export function moveBlock(s: EditorState, blockId: string, toSectionId: string, toIndex: number): OpResult {
   return edit(s, t => {
-    const loc = locate(t, blockId);
-    if (!loc) return [`unknown block "${String(blockId)}"`];
+    const from = findSection(t, sectionOf(t, blockId));
+    if (!from) return [`unknown block "${String(blockId)}"`];
     const to = findSection(t, toSectionId);
     if (!to) return [`unknown section "${String(toSectionId)}"`];
-    loc.section.blocks.splice(loc.index, 1); // toIndex is relative to the target after removal
+    const [block] = from.blocks.splice(from.blocks.findIndex((b: any) => b.id === blockId), 1); // toIndex is relative to the target after removal
     if (!Number.isInteger(toIndex) || toIndex < 0 || toIndex > to.blocks.length) return [`index ${String(toIndex)} out of range`];
-    to.blocks.splice(toIndex, 0, loc.block);
+    to.blocks.splice(toIndex, 0, block);
   });
 }
 

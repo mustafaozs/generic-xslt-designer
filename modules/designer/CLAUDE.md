@@ -26,9 +26,9 @@ Notlar:
 - `moveBlock` `toIndex`'i kaynak bloğu çıkardıktan sonraki hedef dizisine göre sayar.
 - `document-type` ilk erişimde okunur; şablon henüz değiştirilmemişse (`attributeChangedCallback`) attribute değişimi varsayılan şablonu yeniden tohumlar, değiştirilmişse yok sayılır.
 
-Testler: `modules/designer/tests/state.test.ts` (24), `modules/designer/tests/element.test.ts` (13, happy-dom).
+Testler: `modules/designer/tests/state.test.ts` (24), `modules/designer/tests/element.test.ts` (13, happy-dom), `section-of.test.ts` (3).
 
 Son değişiklikler:
-- #17 (designer), bkz. ledger
+- #41 `sectionOf`
 
-hash: c5be5fa3a1c04606
+hash: 2b0a31b57de22d3b
