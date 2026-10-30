@@ -67,6 +67,27 @@ const XPATH2: [string, RegExp][] = [
 
 const blankLiterals = (expr: string): string => expr.replace(/'[^']*'|"[^"]*"/g, "''");
 
+// argument lists of each format-number(...) call in an expression (top-level comma split, quotes respected)
+function formatNumberCalls(expr: string): string[][] {
+  const out: string[][] = [];
+  for (const m of expr.matchAll(/(?<![\w:.-])format-number\s*\(/g)) {
+    const args: string[] = [];
+    let depth = 1, quote = "", cur = "";
+    for (let i = m.index! + m[0].length; i < expr.length; i++) {
+      const c = expr[i];
+      if (quote) { if (c === quote) quote = ""; }
+      else if (c === "'" || c === '"') quote = c;
+      else if (c === "(") depth++;
+      else if (c === ")" && --depth === 0) break;
+      else if (c === "," && depth === 1) { args.push(cur); cur = ""; continue; }
+      cur += c;
+    }
+    args.push(cur);
+    out.push(args);
+  }
+  return out;
+}
+
 export function checkXslt(xslt: string): RuleHit[] {
   const sev = new Map(RULES.map(r => [r.id, r.severity]));
   const hits: RuleHit[] = [];
@@ -118,6 +139,12 @@ export function checkXslt(xslt: string): RuleHit[] {
     return /(?<![\w.-])cac:InvoiceLine(?![\w.-])/.test(expr) && !/position\s*\(/.test(expr);
   })());
   if (!linesOk) hit("LINES-ALL", "no xsl:for-each over cac:InvoiceLine without a position() limit");
+  const declaresTr = all.some(t => isXsl(t, "decimal-format") && get(t, "name") === "tr");
+  const formatCalls = all.flatMap(t => t.attrs.map(([, v]) => v)).flatMap(formatNumberCalls);
+  const badCalls = formatCalls.filter(a => !/^\s*(?:'tr'|"tr")\s*$/.test(a[2] ?? ""));
+  const anyFormat = all.some(t => isXsl(t, "decimal-format"));
+  if (!declaresTr && (formatCalls.length > 0 || anyFormat)) hit("NUM-TR", 'no xsl:decimal-format name="tr" declared');
+  if (badCalls.length > 0) hit("NUM-TR", `${badCalls.length} format-number call(s) without the 'tr' decimal-format`);
   // url() in <style> text or CSS emitted outside attributes
   for (const m of text.matchAll(/url\(\s*["']?\s*(?:https?:)?\/\/[^)]*\)/gi)) hit("EXT-NONE", `external url(): ${m[0]}`);
   return hits;

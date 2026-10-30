@@ -21,7 +21,7 @@ Open questions:
 - efatura-tevkifat withholding block is synthetic (TaxTypeCode 604/50); replace or complement with a real tevkifat sample when one is available.
 - Browser (Chromium XSLTProcessor via Playwright) parity job: not wired; `expected.html` is libxslt only.
 - normalizeHtml collapses whitespace, so white-space:pre-line multi-line text blocks lose newlines in expected.html (found in #14); decide whether the golden comparison should preserve line breaks.
-- gib-rules: checkXslt covers X10-* and EXT-*; checkXslt covers LINES-ALL (#43); checkTemplate covers REQ-FIELDS (partial: ProfileID/InvoiceTypeCode not checked), REQ-EARSIV-NOTE, FONT-SAFE, SIZE-MAX (#12); CUR/WITHHOLD/PRINT/NUM remain; codegen does not call gib-rules yet (`CG-*` binding errors only).
+- gib-rules: checkXslt covers X10-* and EXT-*; checkXslt covers LINES-ALL (#43), NUM-TR (#44); checkTemplate covers REQ-FIELDS (partial: ProfileID/InvoiceTypeCode not checked), REQ-EARSIV-NOTE, FONT-SAFE, SIZE-MAX (#12); CUR/WITHHOLD/PRINT remain; codegen does not call gib-rules yet (`CG-*` binding errors only).
 - gib-rules LINES-ALL limits (#43): `position()` inside `xsl:if` is not detected; `xsl:apply-templates` line loops are not handled. Decide whether to tighten before codegen calls gib-rules.
 - efatura-usd golden (#13, scope reduced by human decision after dev STOP): does not exercise TRY-equivalent or in-words, the real USD gaps; `money` appends raw @currencyID for non-TRY; number-tr drops trailing zeros of the rate. Follow-ups: #27 (tryEquivalent row/enum), #28 (currency-aware in-words). totals.tryTax not bound (needs second TaxTotal in fixture).
 
@@ -29,7 +29,7 @@ Stop condition for current task: all four cards pinned, `pos gate` green, catalo
 Progress (task #3, 2026-10-27): xslt-codegen body + golden harness with 1 case (`earsiv-default`); gib-rules body still pending.
 Progress (task #4, 2026-10-27): second fixture + golden `efatura-tevkifat` (control task).
 Progress (task #10, 2026-10-27): gib-rules RULES table (17 rules, documentTypes) + contract-drift test; checkTemplate/checkXslt still pending.
-Progress (task #11, 2026-10-27): gib-rules checkXslt (X10-*, EXT-*) + acceptance tests; checkTemplate and REQ/LINES/CUR/WITHHOLD/PRINT/FONT/NUM checks remain.
+Progress (task #11, 2026-10-27): gib-rules checkXslt (X10-*, EXT-*) + acceptance tests; checkTemplate and REQ/LINES/CUR/WITHHOLD/PRINT/FONT/NUM checks remain (later: LINES #43, NUM #44 and checkTemplate #12 done; CUR/WITHHOLD/PRINT remain).
 Progress (task #15, 2026-10-27): complete synthetic e-Arşiv fixture `earsiv-full` (+ `earsiv-full-nonote`) and goldens (control task).
 Progress (task #12, 2026-10-28): gib-rules checkTemplate (REQ-FIELDS, REQ-EARSIV-NOTE, FONT-SAFE, SIZE-MAX) + acceptance tests; condition cbad, not counted in control window; checkTemplate removed from planned work.
 Progress (task #14, 2026-10-28): escaping and Turkish-character edge-case tests + golden `escape-edge` (control task, window 5 of 5).
@@ -39,7 +39,8 @@ Progress (task #16, 2026-10-29): in-words-tr boundary matrix test (`inwords-matr
 Progress (task #17, 2026-10-29): designer contract v1 (human-approved decisions) + pure state ops + xslt-designer element + card; 37 tests; condition cbad, not counted in control window; H3 started.
 
 Progress (task #43, 2026-10-30): gib-rules checkXslt LINES-ALL + `check-lines.test.ts` (4 tests); no dependent tests to run: checkXslt is called only inside gib-rules (src/index.ts and its two test files), xslt-codegen and designer do not call it.
+Progress (task #44, 2026-10-30): gib-rules checkXslt NUM-TR (decimal-format "tr" + format-number 'tr' check, warn) + 7 tests in check-xslt.test.ts; known limit: a format name passed as a variable or expression counts as a hit; uncommitted at write time.
 
-Block 2 order: #43 (done), #44, #28, #41, #39, #34, #27, #21, #40, #42 (kit block2-plan.md)
+Block 2 order: #43 (done), #44 (done), #28, #41, #39, #34, #27, #21, #40, #42 (kit block2-plan.md)
 
 Last updated: 2026-10-30
