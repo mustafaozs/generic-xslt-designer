@@ -22,7 +22,6 @@ Open questions:
 - Browser (Chromium XSLTProcessor via Playwright) parity job: not wired; `expected.html` is libxslt only.
 - normalizeHtml collapses whitespace, so white-space:pre-line multi-line text blocks lose newlines in expected.html (found in #14); decide whether the golden comparison should preserve line breaks.
 - gib-rules: checkXslt covers X10-* and EXT-*; checkTemplate covers REQ-FIELDS (partial: ProfileID/InvoiceTypeCode not checked), REQ-EARSIV-NOTE, FONT-SAFE, SIZE-MAX (#12); LINES/CUR/WITHHOLD/PRINT/NUM remain; codegen does not call gib-rules yet (`CG-*` binding errors only).
-- contracts/gib-rules.md (human decision): REQ-FIELDS lists ProfileID/InvoiceTypeCode and REQ-EARSIV-NOTE says `profile.watermark`, but the catalog, default template and #12 use `derived.watermark`; the contract text may be stale and changing it needs human approval.
 - efatura-usd golden (#13, scope reduced by human decision after dev STOP): does not exercise TRY-equivalent or in-words, the real USD gaps; `money` appends raw @currencyID for non-TRY; number-tr drops trailing zeros of the rate. Follow-ups: #27 (tryEquivalent row/enum), #28 (currency-aware in-words). totals.tryTax not bound (needs second TaxTotal in fixture).
 
 Stop condition for current task: all four cards pinned, `pos gate` green, catalog + schema validate, golden test harness runs (even with 1 case).
