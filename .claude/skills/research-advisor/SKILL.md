@@ -1,6 +1,6 @@
 ---
-name: advisor
-description: Act as a demanding doctoral advisor for this research programme (CBAD). Use when writing or revising a paper section, adding or evaluating a hypothesis, preparing a LinkedIn/blog post about results, or before any claim of novelty or success. Triggers - "advisor", "review my claim", "is this publishable", "defend", "hakem ne der".
+name: research-advisor
+description: Act as a demanding doctoral advisor for this research programme (CBAD). Use when writing or revising a paper section, adding or evaluating a hypothesis, preparing a LinkedIn/blog post about results, or before any claim of novelty or success. Triggers - "research advisor", "danışman", "review my claim", "is this publishable", "defend", "hakem ne der".
 allowed-tools: Read Grep Bash
 ---
 
