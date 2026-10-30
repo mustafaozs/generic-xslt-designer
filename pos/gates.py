@@ -211,6 +211,9 @@ def metrics_log(root: Path, **fields) -> dict:
     """One record per task. Adds diff size and the rungs actually queried (from queries.log)."""
     rec = {"t": int(time.time()), "date": f"{date.today():%Y-%m-%d}"}
     rec.update({k: v for k, v in fields.items() if v is not None})
+    kv = root / ".project-os" / "kit-version"
+    if kv.exists():  # protocol v1.6: block-2 records carry the kit tag they ran on
+        rec["kit_version"] = kv.read_text(encoding="utf-8").strip()
     stat = git(root, "diff", "--shortstat", "HEAD~1") if not fields.get("base") else git(root, "diff", "--shortstat", f"{fields['base']}...HEAD")
     m = re.findall(r"(\d+) (?:insertion|deletion)", stat)
     explicit_diff = fields.get("diff_lines") is not None
@@ -358,4 +361,19 @@ def run_extra_gates(root: Path) -> bool:
         else:
             print("ok")
     return ok
+
+
+def ledger_conflicts(root: Path, issue: str) -> list[str]:
+    """`conflict:` items in the ledger entries of one issue (ADR-0006). auto_resolved is the number that end in
+    "followed <higher source>"; "stopped, asked" ones are human asks. Counted by code, never by the model."""
+    out = []
+    for p in sorted((root / "docs" / "ledger").glob("*.md")):
+        entry_issue = None
+        for line in p.read_text(encoding="utf-8").splitlines():
+            m = re.match(r"^## \S+ · (#\d+|none|chore) ·", line)
+            if m:
+                entry_issue = m.group(1); continue
+            if entry_issue == issue:
+                out += [c.strip() for c in re.findall(r"conflict:[^;]*", line)]
+    return out
 
