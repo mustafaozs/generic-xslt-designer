@@ -1,5 +1,5 @@
 {
-  "_source": "Contract-Bounded-Agentic-Development docs/research/evidence/control-window.md (protocol v1.4 §2d, matched-pair draw, seed 23695268). Issues not listed run as cbad.",
+  "_source": "Contract-Bounded-Agentic-Development docs/research/evidence/control-window.md (protocol v1.4 §2d, matched-pair draw, seed 23695268). Issues not listed run as cbad. Block 2: kit docs/research/evidence/block2-plan.md (seed 23799651).",
   "#4": "control",
   "#10": "control",
   "#11": "control",
@@ -8,5 +8,15 @@
   "#12": "cbad",
   "#13": "cbad",
   "#16": "cbad",
-  "#17": "cbad"
+  "#17": "cbad",
+  "#43": "cbad",
+  "#44": "control",
+  "#28": "cbad",
+  "#41": "control",
+  "#39": "cbad",
+  "#34": "cbad",
+  "#27": "cbad",
+  "#21": "cbad",
+  "#40": "cbad",
+  "#42": "control"
 }

@@ -37,4 +37,6 @@ Progress (task #16, 2026-10-29): in-words-tr boundary matrix test (`inwords-matr
 
 Progress (task #17, 2026-10-29): designer contract v1 (human-approved decisions) + pure state ops + xslt-designer element + card; 37 tests; condition cbad, not counted in control window; H3 started.
 
-Last updated: 2026-10-29
+Block 2 order: #43, #44, #28, #41, #39, #34, #27, #21, #40, #42 (kit block2-plan.md)
+
+Last updated: 2026-10-30
