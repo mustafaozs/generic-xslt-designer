@@ -10,6 +10,7 @@ Locked decisions:
 - Golden reference engine is libxslt via `lxml` (contracts/xslt-codegen.md, 2026-10-27); .NET parity is checked in H4, browser parity is a CI job (pending).
 - Number-to-words (Yalnız: …) is a recursive named template `in-words-tr` in the generated XSLT (task #3, 2026-10-27); verified identical on libxslt and .NET.
 - in-words format per ADR-0005 (Yalnız: ; 0,00 → Sıfır TL Sıfır Kr; foreign currencies by ISO code EUR/GBP/USD; implementation in #28).
+- Watermark field is derived.watermark (owner decision 2026-10-28). contracts/gib-rules.md still says profile.watermark; the contract text is corrected in #27. Not an open question.
 
 Research protocol (docs/research/protocol.md): Control window = #4 plus the next four task issues worked (protocol v1.4 §2d, by order not number); then cbad. Live list: kit docs/research/evidence/control-window.md.
 Control window progress: 5 of 5 (#4, #10, #11, #15, #14). Next task issues worked count toward it in order.

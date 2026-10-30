@@ -112,8 +112,14 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "ledger":
         if a.sub == "tail": print(gates.ledger_tail(root, a.n)); return 0
         if a.sub == "conflicts":
-            items = gates.ledger_conflicts(root, a.issue); auto = sum(1 for i in items if "followed" in i)
-            print(f"conflicts: {len(items)}  auto_resolved: {auto}  asked: {len(items) - auto}"); [print("  " + i) for i in items]; return 0
+            items = gates.ledger_conflicts(root, a.issue)
+            auto = [i for i in items if "— followed" in i or "- followed" in i]
+            asked = [i for i in items if "stopped, asked" in i]
+            bad = [i for i in items if i not in auto and i not in asked]
+            print(f"conflicts: {len(auto) + len(asked)}  auto_resolved: {len(auto)}  asked: {len(asked)}  malformed: {len(bad)}")
+            [print("  " + i) for i in auto + asked]
+            [print("  MALFORMED (not counted; needs '— followed <source>' or '— stopped, asked'): " + i) for i in bad]
+            return 0
         if a.sub == "check": return _print(*gates.ledger_check(root, _branch_base(root, a.base)))
         if a.sub == "add":
             print(gates.ledger_add(root, a.issue, a.title, a.base, a.tokens_in, a.tokens_out, a.tests_ran, a.debt, a.adr)); return 0
