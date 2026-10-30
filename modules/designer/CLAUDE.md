@@ -20,15 +20,16 @@ Invariantlar:
 - Geçmiş (undo/redo) modül düzeyi WeakMap'te, anahtar durum nesnesi.
 
 Notlar:
-- Element katalogu varsayılan `loadCatalog()`; `catalog` setter geçersiz (fields dizisi yok) değeri sessizce yok sayar, geçerliyse şablonu tutar ve geçmişi sıfırlar.
+- Element katalogu varsayılan `loadCatalog()`; `catalog` setter geçersiz (fields yok) değeri sessizce yok sayar; geçerliyse geçmişi sıfırlar.
 - `template` setter: geçersiz şablonu veya katalogda olmayan/yanlış kapsamlı bağlamalı şablonu yok sayar; geçerliyse geçmişi sıfırlar ve `template-change` atar.
-- Element `undo`/`redo`: şablon `undefined` iken `ok:false` ("no template"); aksi halde `ok:true`, event yalnız şablon gerçekten değiştiyse.
-- `moveBlock` `toIndex`'i kaynak bloğu çıkardıktan sonraki hedef dizisine göre sayar.
-- `document-type` ilk erişimde okunur; şablon henüz değiştirilmemişse (`attributeChangedCallback`) attribute değişimi varsayılan şablonu yeniden tohumlar, değiştirilmişse yok sayılır.
+- Element `undo`/`redo`: şablon `undefined` iken `ok:false`; aksi halde `ok:true`, event yalnız şablon değişirse.
+- `moveBlock` `toIndex`'i kaynak çıkarıldıktan sonraki diziye göre sayar.
+- `document-type` ilk erişimde okunur; şablon değişmemişse attribute değişimi (`attributeChangedCallback`) varsayılanı yeniden tohumlar, yoksa yok sayılır.
 
-Testler: `modules/designer/tests/state.test.ts` (24), `modules/designer/tests/element.test.ts` (13, happy-dom), `section-of.test.ts` (3).
+Testler: `modules/designer/tests/state.test.ts` (24), `modules/designer/tests/element.test.ts` (13, happy-dom), `section-of.test.ts` (3), `new-block-id.test.ts` (4).
 
 Son değişiklikler:
+- #39 `newBlockId` (internal; ilk boş `block-N`; public'e çıkmaz)
 - #41 `sectionOf`
 
-hash: 2b0a31b57de22d3b
+hash: cbb91e4f02a2464f

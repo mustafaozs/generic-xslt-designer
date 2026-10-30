@@ -46,6 +46,8 @@ Progress (task #28, 2026-10-30): in-words-tr currency-aware (ADR-0005; `cur` fro
 
 Progress (task #41, 2026-10-30): designer internal `sectionOf(t, blockId)` (internal.ts, not exported) used by removeBlock/moveBlock + 3 tests (section-of.test.ts); public surface and contracts/designer.md unchanged; condition control; full suite 171 pass; uncommitted at write time.
 
-Block 2 order: #43 (done), #44 (done), #28 (done, uncommitted), #41 (done, uncommitted), #39, #34, #27, #21, #40, #42 (kit block2-plan.md)
+Progress (task #39, 2026-10-31): designer internal `newBlockId(state)` (internal.ts, not exported; first unused `block-N` across sections) + 4 tests (new-block-id.test.ts); addBlock and contracts/designer.md unchanged; condition cbad, not counted in control window; dev ran 44 (selected set); uncommitted at write time.
 
-Last updated: 2026-10-30
+Block 2 order: #43 (done), #44 (done), #28 (done, uncommitted), #41 (done, uncommitted), #39 (done, uncommitted), #34, #27, #21, #40, #42 (kit block2-plan.md)
+
+Last updated: 2026-10-31
