@@ -36,6 +36,8 @@ Rank (higher wins): 1 `contracts/` · 2 `.project-os/conditions.json` and `docs/
 - Different ranks: follow the higher one without asking, drop the lower text from every agent brief, and record it on the ledger `debt` line as `conflict: <lower source> said X, <higher source> says Y — followed Y`. Fixing the lower source is a follow-up, not a blocker.
 - Card vs code: cards describe the code, so code covered by passing tests wins and the card is corrected in the same PR (not a follow-up). Code vs contract is the reverse: the contract wins.
 - Same rank, or the higher source is silent: stop and ask the human.
+- A higher source that points at something that does not exist (field, file, symbol) counts as silent: stop and ask; never fall back to the lower source (ADR-0006).
+- Every disagreement, however it was resolved (by rank, by a human, or found later at review), goes on the ledger `debt` line with the literal `conflict:` tag: `conflict: <lower> said X, <higher> says Y — followed Y` or `— stopped, asked`. `pos ledger conflicts --issue <#>` counts them.
 - Always stop, whatever the ranks, before a contract change, a force-push, a merge or a deletion.
 
 ## Style

@@ -17,6 +17,18 @@ def _print(ok: bool, msgs: list[str]) -> int:
     return 0 if ok else 1
 
 
+def _branch_base(root, base):
+    """On a feature branch, a HEAD-only check asks the wrong question: default to origin/main."""
+    if base is not None:
+        return base
+    from .repo import git as _git
+    branch = _git(root, "rev-parse", "--abbrev-ref", "HEAD")
+    if branch not in ("main", "master", "HEAD", "") and _git(root, "rev-parse", "--verify", "-q", "origin/main"):
+        print("base: origin/main (branch default)")
+        return "origin/main"
+    return None
+
+
 def main(argv: list[str] | None = None) -> int:
     for s in (sys.stdout, sys.stderr):  # Windows consoles (cp1254) crash on → and Turkish letters
         try:
@@ -42,6 +54,7 @@ def main(argv: list[str] | None = None) -> int:
     c.add_parser("new").add_argument("module")
 
     l = sub.add_parser("ledger", help="change ledger").add_subparsers(dest="sub", required=True)
+    lc = l.add_parser("conflicts", help="conflict: items of one issue (ADR-0006)"); lc.add_argument("--issue", required=True)
     l.add_parser("tail").add_argument("n", nargs="?", type=int, default=10)
     lc = l.add_parser("check"); lc.add_argument("--base", default=None)
     la = l.add_parser("add"); la.add_argument("--issue", required=True); la.add_argument("--title", required=True)
@@ -98,17 +111,16 @@ def main(argv: list[str] | None = None) -> int:
         if a.sub == "new": print(f"wrote {gates.card_new(root, a.module)} — fill Amaç and Invariantlar, then commit"); return 0
     if a.cmd == "ledger":
         if a.sub == "tail": print(gates.ledger_tail(root, a.n)); return 0
-        if a.sub == "check": return _print(*gates.ledger_check(root, a.base))
+        if a.sub == "conflicts":
+            items = gates.ledger_conflicts(root, a.issue); auto = sum(1 for i in items if "followed" in i)
+            print(f"conflicts: {len(items)}  auto_resolved: {auto}  asked: {len(items) - auto}"); [print("  " + i) for i in items]; return 0
+        if a.sub == "check": return _print(*gates.ledger_check(root, _branch_base(root, a.base)))
         if a.sub == "add":
             print(gates.ledger_add(root, a.issue, a.title, a.base, a.tokens_in, a.tokens_out, a.tests_ran, a.debt, a.adr)); return 0
     if a.cmd == "lint":
         return _print(*gates.lint(root))
     if a.cmd == "gate":
-        if a.base is None:  # on a branch, a HEAD-only ledger check is the wrong question (2026-10-29 incident)
-            from .repo import git as _git
-            branch = _git(root, "rev-parse", "--abbrev-ref", "HEAD")
-            if branch not in ("main", "master", "HEAD", "") and _git(root, "rev-parse", "--verify", "-q", "origin/main"):
-                a.base = "origin/main"; print("base: origin/main (branch default)")
+        a.base = _branch_base(root, a.base)  # 2026-10-29 incident: HEAD-only check on a branch
         index(root); ok = True
         for name, (o, msgs) in (("lint", gates.lint(root)), ("cards", gates.card_check(root)), ("ledger", gates.ledger_check(root, a.base)), ("metrics", gates.metrics_check(root, None))):
             print(f"--- {name}"); _print(o, msgs); ok = ok and o

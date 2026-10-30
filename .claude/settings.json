@@ -5,7 +5,8 @@
     "pr": ""
   },
   "env": {
-    "GITHUB_TOKEN": ""
+    "GITHUB_TOKEN": "",
+    "CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"
   },
   "model": "sonnet"
 }
