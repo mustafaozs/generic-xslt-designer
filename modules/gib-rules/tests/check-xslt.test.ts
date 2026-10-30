@@ -1,6 +1,9 @@
 // Acceptance for issue #11: checkXslt X10-* and EXT-* scans.
 import { readFileSync } from "node:fs";
-import { checkXslt } from "../src";
+import { checkXslt as checkAll } from "../src";
+
+// LINES-ALL (#43) is covered in check-lines.test.ts; these synthetic sheets have no line loop
+const checkXslt = (x: string) => checkAll(x).filter(h => h.rule !== "LINES-ALL");
 
 const golden = (n: string) => readFileSync(new URL(`../../xslt-codegen/tests/golden/${n}/expected.xslt`, import.meta.url), "utf8");
 const NS = 'xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:n1="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"';
