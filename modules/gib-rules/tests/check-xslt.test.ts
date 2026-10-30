@@ -20,6 +20,9 @@ describe("golden stylesheets", () => {
     test(`${n} gives no LINES-ALL hit`, () => {
       expect(checkAll(golden(n)).filter(h => h.rule === "LINES-ALL")).toEqual([]);
     });
+    test(`${n} gives no NUM-TR hit`, () => {
+      expect(checkAll(golden(n)).filter(h => h.rule === "NUM-TR")).toEqual([]);
+    });
   }
 });
 
@@ -68,6 +71,30 @@ describe("EXT-NONE / EXT-NO-SCRIPT", () => {
   });
   test("data URI and namespace URI are fine", () => {
     expect(checkXslt(out('<img src="data:image/png;base64,iVBORw0KGgo="/>'))).toEqual([]);
+  });
+});
+
+describe("NUM-TR (#44)", () => {
+  const TR = '<xsl:decimal-format name="tr" decimal-separator="," grouping-separator="."/>';
+  const num = (decl: string, call: string) =>
+    sheet(`${decl}<xsl:template match="/"><xsl:value-of select="${call}"/></xsl:template>`);
+  const numHits = (x: string) => checkXslt(x).filter(h => h.rule === "NUM-TR");
+  test("declared tr used by every format-number: no hit", () => {
+    expect(numHits(num(TR, "format-number($v, '#.##0,00', 'tr')"))).toEqual([]);
+  });
+  test("tr not declared: one warn hit", () => {
+    const h = numHits(num("", "format-number($v,'#.##0,00','tr')"));
+    expect(h.length).toBe(1);
+    expect(h[0].severity).toBe("warn");
+  });
+  test("format-number without tr: one hit", () => {
+    expect(numHits(num(TR, "format-number($v,'#.##0,00')")).length).toBe(1);
+  });
+  test("only another named format declared: one hit", () => {
+    expect(numHits(num('<xsl:decimal-format name="de"/>', "string($v)")).length).toBe(1);
+  });
+  test("no format-number and no decimal-format: no hit", () => {
+    expect(numHits(sel("string(.)"))).toEqual([]);
   });
 });
 
