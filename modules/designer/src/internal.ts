@@ -24,6 +24,14 @@ export function templateBindingErrors(template: Template, catalog: Catalog): str
   return template.sections.flatMap(sec => sec.blocks.flatMap(b => bindingErrors(b, catalog, template.documentType)));
 }
 
+/** Proposes an unused block id matching the schema pattern; pure, never throws. */
+export function newBlockId(s: { template: { sections: any[] } }): string {
+  const used = new Set<string>(s.template.sections.flatMap((x: any) => x.blocks.map((b: any) => b.id)));
+  let n = 1;
+  while (used.has(`block-${n}`)) n++;
+  return `block-${n}`;
+}
+
 /** Id of the section holding `blockId`, or undefined when no section holds it. */
 export function sectionOf(t: { sections: any[] }, blockId: unknown): string | undefined {
   return t.sections.find((s: any) => s.blocks.some((b: any) => b.id === blockId))?.id;
